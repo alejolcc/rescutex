@@ -15,6 +15,7 @@ defmodule Rescutex.Pets.Pet do
     field :lat, :float
     field :pictures, :string
     field :race, :string
+    field :embedding, Pgvector.Ecto.Vector
 
     many_to_many :tags, Tag, join_through: PetTag
 
@@ -24,7 +25,7 @@ defmodule Rescutex.Pets.Pet do
   @doc false
   def changeset(pet, attrs) do
     pet
-    |> cast(attrs, [:age, :details, :name, :lat, :long, :pictures, :race])
+    |> cast(attrs, [:age, :details, :name, :lat, :long, :pictures, :race, :embedding])
     |> validate_required([:age, :details, :name, :lat, :long, :pictures, :race])
   end
 end

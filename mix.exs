@@ -32,6 +32,7 @@ defmodule Rescutex.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:pgvector, "~> 0.3.0"},
       {:goth, "~> 1.4"},
       {:tesla, "~> 1.14"},
       {:phoenix, "~> 1.7.14"},
