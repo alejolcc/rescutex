@@ -12,11 +12,8 @@ defmodule Rescutex.Application do
       Rescutex.Repo,
       {DNSCluster, query: Application.get_env(:rescutex, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Rescutex.PubSub},
-      # Start the Finch HTTP client for sending emails
       {Finch, name: Rescutex.Finch},
-      # Start a worker by calling: Rescutex.Worker.start_link(arg)
-      # {Rescutex.Worker, arg},
-      # Start to serve requests, typically the last entry
+      {Goth, name: Rescutex.Goth},
       RescutexWeb.Endpoint
     ]
 

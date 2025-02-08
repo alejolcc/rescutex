@@ -1,5 +1,12 @@
 import Config
 
+google_Storage_credentials =
+  "RESCUTEX_CREDS"
+  |> System.get_env("")
+  |> :base64.decode()
+
+config :goth, json: google_Storage_credentials
+
 # Configure your database
 config :rescutex, Rescutex.Repo,
   username: "postgres",
