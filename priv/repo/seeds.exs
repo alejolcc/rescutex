@@ -41,7 +41,7 @@ end
 #   :code.priv_dir(:rescutex) |> Path.join("static") |> Path.join("uploads") |> File.ls!()
 # end
 
-File.read!("priv/repo/migrations/seed.json") |> Jason.decode!()
+File.read!("priv/repo/seed.json") |> Jason.decode!()
 |> Enum.each(fn %{"embedding" => embedding, "picture" => picture} ->
   {lat, long} = point.()
 
