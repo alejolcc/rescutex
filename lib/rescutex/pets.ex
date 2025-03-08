@@ -3,10 +3,17 @@ defmodule Rescutex.Pets do
   The Pets context.
   """
 
+  import Pgvector.Ecto.Query
   import Ecto.Query, warn: false
   alias Rescutex.Repo
 
   alias Rescutex.Pets.Pet
+
+  # TODO: Remove the pet used as argument from the results
+  def get_similar_pets(pet, opts \\ []) do
+    limit = Keyword.get(opts, :limit, 6)
+    Repo.all(from p in Pet, order_by: l2_distance(p.embedding, ^pet.embedding), limit: ^limit)
+  end
 
   @doc """
   Returns the list of pets.

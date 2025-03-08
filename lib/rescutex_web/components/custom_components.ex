@@ -121,7 +121,7 @@ defmodule RescutexWeb.CustomComponents do
                   </span>
                   <span class="inline-flex rounded border border-[#e0e0e0] py-2 px-7 text-base font-medium text-[#07074D]">
                     <label class="my-classes">
-                      <.live_file_input class="hidden" upload={@uploads.avatar} />
+                      <.live_file_input upload={@uploads.avatar} />
                     </label>
                   </span>
                 </div>

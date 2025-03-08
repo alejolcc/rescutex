@@ -52,7 +52,7 @@ defmodule RescutexWeb.PetLive.Show do
                 <span>Similar Pets</span>
               </div>
               <div class="grid grid-cols-3">
-                <div :for={similar_pet <- get_similars(6)}>
+                <div :for={similar_pet <- get_similars(@pet, 6)}>
                   <.link navigate={~p"/pets/#{similar_pet.id}"}>
                     <.rounded_img_with_name
                       name={similar_pet.name}
@@ -168,7 +168,7 @@ defmodule RescutexWeb.PetLive.Show do
   defp page_title(:show), do: "Show Pet"
   defp page_title(:edit), do: "Edit Pet"
 
-  defp get_similars(n) do
-    Pets.list_pets() |> Enum.take(n)
+  defp get_similars(pet, n) do
+    Pets.get_similar_pets(pet, limit: n)
   end
 end

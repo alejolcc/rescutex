@@ -17,7 +17,7 @@ defmodule RescutexWeb.CoreComponents do
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
-  import RescutexWeb.Gettext
+  use Gettext, backend: RescutexWeb.Gettext
 
   @doc """
   Renders a modal.

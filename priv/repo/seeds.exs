@@ -37,21 +37,12 @@ point = fn ->
   {lat, long}
 end
 
-picture = fn ->
-  images_path =
-    :code.priv_dir(:rescutex)
-    |> Path.join("static")
-    |> Path.join("uploads")
+# pictures = fn ->
+#   :code.priv_dir(:rescutex) |> Path.join("static") |> Path.join("uploads") |> File.ls!()
+# end
 
-  name =
-    images_path
-    |> File.ls!()
-    |> Enum.random()
-
-  "#{name}"
-end
-
-Enum.each(1..10, fn _ ->
+File.read!("priv/repo/migrations/seed.json") |> Jason.decode!()
+|> Enum.each(fn %{"embedding" => embedding, "picture" => picture} ->
   {lat, long} = point.()
 
   %Rescutex.Pets.Pet{
@@ -62,7 +53,8 @@ Enum.each(1..10, fn _ ->
     name: name.(),
     lat: lat,
     long: long,
-    pictures: picture.(),
+    pictures: picture,
+    embedding: embedding,
     race: race.()
   }
   |> Rescutex.Repo.insert!()

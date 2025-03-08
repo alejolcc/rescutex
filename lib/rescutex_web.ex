@@ -43,7 +43,7 @@ defmodule RescutexWeb do
         layouts: [html: RescutexWeb.Layouts]
 
       import Plug.Conn
-      import RescutexWeb.Gettext
+      use Gettext, backend: RescutexWeb.Gettext
 
       unquote(verified_routes())
     end

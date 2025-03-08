@@ -154,7 +154,8 @@ defmodule RescutexWeb.PetLive.FormComponent do
 
   defp handle_upload(socket) do
     uploaded_files =
-      consume_uploaded_entries(socket, :avatar, fn %{path: path}, _entry ->
+      consume_uploaded_entries(socket, :avatar, fn %{path: path}, entry ->
+        IO.inspect entry
         dest = Path.join([:code.priv_dir(:rescutex), "static", "uploads", Path.basename(path)])
         # dest = Path.join(["/tmp/pictures/", Path.basename(path)])
         File.cp!(path, dest)

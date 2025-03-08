@@ -5,6 +5,7 @@ defmodule Rescutex.Pets.Pet do
   alias Rescutex.Pets.PetTag
   alias Rescutex.Pets.Tag
 
+  @derive {Jason.Encoder, except: [:__struct__, :__meta__]}
   schema "pets" do
     field :name, :string
     field :long, :float

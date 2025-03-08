@@ -14,6 +14,7 @@ defmodule Rescutex.Application do
       {Phoenix.PubSub, name: Rescutex.PubSub},
       {Finch, name: Rescutex.Finch},
       {Goth, name: Rescutex.Goth},
+      Rescutex.AI.Worker,
       RescutexWeb.Endpoint
     ]
 

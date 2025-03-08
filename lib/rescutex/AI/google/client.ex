@@ -18,8 +18,8 @@ defmodule Rescutex.AI.Google.Client do
   # @base_url "https://generativelanguage.googleapis.com"
   @project_id "rescutex"
   @base_url "https://us-central1-aiplatform.googleapis.com/v1/projects/#{@project_id}/locations/us-central1"
-  @model "gemini-1.5-pro"
-  # @model "gemini-1.5-flash"
+  # @model "gemini-1.5-pro"
+  @model "gemini-2.0-flash"
   # @model "gemini-2.0-flash-exp"
 
   def generate_content(prompt, system_instruction, opts \\ []) do
@@ -254,14 +254,16 @@ defmodule Rescutex.AI.Google.Client do
       instances: [
         %{
           image: %{
-            bytesBase64Encoded: File.read!(file_path) |> :base64.encode(),
+            bytesBase64Encoded: File.read!(file_path) |> :base64.encode()
           }
         }
       ]
     }
 
-    post(uri, body, headers: headers)
-    |> handle_response()
+    with {:ok, body, _headers} <- post(uri, body, headers: headers) |> handle_response() do
+      %{"predictions" => [%{"imageEmbedding" => embedding}]} = body
+      {:ok, embedding}
+    end
   end
 
   ###########
