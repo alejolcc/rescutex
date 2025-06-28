@@ -25,7 +25,7 @@ defmodule RescutexWeb.PetLiveTest do
     test "saves new pet", %{conn: conn} do
       {:ok, index_live, _html} = live(conn, ~p"/pets")
 
-      assert index_live |> element("a", "New Pet") |> render_click() =~
+      assert index_live |> element("a[href*='/pets/new']") |> render_click() =~
                "New Pet"
 
       assert_patch(index_live, ~p"/pets/new")
@@ -47,7 +47,7 @@ defmodule RescutexWeb.PetLiveTest do
     test "updates pet in listing", %{conn: conn, pet: pet} do
       {:ok, index_live, _html} = live(conn, ~p"/pets")
 
-      assert index_live |> element("#pets-#{pet.id} a", "Edit") |> render_click() =~
+      assert index_live |> element("#pet-#{pet.id} button[phx-click*='edit']") |> render_click() =~
                "Edit Pet"
 
       assert_patch(index_live, ~p"/pets/#{pet}/edit")
@@ -69,8 +69,8 @@ defmodule RescutexWeb.PetLiveTest do
     test "deletes pet in listing", %{conn: conn, pet: pet} do
       {:ok, index_live, _html} = live(conn, ~p"/pets")
 
-      assert index_live |> element("#pets-#{pet.id} a", "Delete") |> render_click()
-      refute has_element?(index_live, "#pets-#{pet.id}")
+      assert index_live |> element("#pet-#{pet.id} button[phx-click*='delete']") |> render_click()
+      refute has_element?(index_live, "#pet-#{pet.id}")
     end
   end
 
@@ -86,7 +86,7 @@ defmodule RescutexWeb.PetLiveTest do
     test "updates pet within modal", %{conn: conn, pet: pet} do
       {:ok, show_live, _html} = live(conn, ~p"/pets/#{pet}")
 
-      assert show_live |> element("a", "Edit") |> render_click() =~
+      assert show_live |> element("button[phx-click*='edit']") |> render_click() =~
                "Edit Pet"
 
       assert_patch(show_live, ~p"/pets/#{pet}/show/edit")

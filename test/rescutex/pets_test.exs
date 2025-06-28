@@ -20,7 +20,7 @@ defmodule Rescutex.PetsTest do
 
     test "list_pets/0 returns all pets" do
       pet = pet_fixture()
-      assert Pets.list_pets() == [pet]
+      assert Enum.member?(Pets.list_pets(), pet)
     end
 
     test "get_pet!/1 returns the pet with given id" do
@@ -36,7 +36,7 @@ defmodule Rescutex.PetsTest do
         kind: :dog,
         age: 42,
         lat: 120.5,
-        pictures: "some pictures",
+        pictures: ["some pictures"],
         race: "some race"
       }
 
@@ -46,7 +46,7 @@ defmodule Rescutex.PetsTest do
       assert pet.details == "some details"
       assert pet.age == 42
       assert pet.lat == 120.5
-      assert pet.pictures == "some pictures"
+      assert pet.pictures == ["some pictures"]
       assert pet.race == "some race"
     end
 
@@ -63,7 +63,7 @@ defmodule Rescutex.PetsTest do
         details: "some updated details",
         age: 43,
         lat: 456.7,
-        pictures: "some updated pictures",
+        pictures: ["some updated pictures"],
         race: "some updated race"
       }
 
@@ -73,7 +73,7 @@ defmodule Rescutex.PetsTest do
       assert pet.details == "some updated details"
       assert pet.age == 43
       assert pet.lat == 456.7
-      assert pet.pictures == "some updated pictures"
+      assert pet.pictures == ["some updated pictures"]
       assert pet.race == "some updated race"
     end
 

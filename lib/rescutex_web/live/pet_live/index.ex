@@ -28,16 +28,18 @@ defmodule RescutexWeb.PetLive.Index do
       </script>
 
       <div class="relative items-center justify-center">
-        <div id="pets" phx-update="stream" class="grid lg:grid-cols-4 gap-4 sm:grid-cols-1">
+        <div class="grid lg:grid-cols-4 gap-4 sm:grid-cols-1">
           <div>
             <.link navigate={~p"/pets/new"}>
               <.pet_card_button />
             </.link>
           </div>
-          <div :for={{dom_id, pet} <- @streams.pets} id={dom_id}>
-            <.link navigate={~p"/pets/#{pet.id}"}>
-              <.pet_card src={pet.pictures} name={pet.name} text={pet.details} />
-            </.link>
+          <div id="pets" phx-update="stream" class="contents">
+            <div :for={{dom_id, pet} <- @streams.pets} id={dom_id}>
+              <.link navigate={~p"/pets/#{pet.id}"}>
+                <.pet_card src={pet.pictures} name={pet.name} text={pet.details} />
+              </.link>
+            </div>
           </div>
         </div>
       </div>

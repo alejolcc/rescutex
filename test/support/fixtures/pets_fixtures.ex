@@ -16,7 +16,7 @@ defmodule Rescutex.PetsFixtures do
         lat: 120.5,
         long: 120.5,
         name: "some name",
-        pictures: "some pictures",
+        pictures: ["some pictures"],
         race: "some race",
         kind: "dog"
       })
