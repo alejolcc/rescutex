@@ -5,6 +5,11 @@ defmodule RescutexWeb.CustomComponents do
   use Phoenix.Component
 
   def pet_card(assigns) do
+    src = assigns.src |> List.first()
+    assigns =
+      assigns
+      |> assign(:src, src)
+
     ~H"""
     <div class="lg:m-4 shadow-md hover:shadow-lg hover:bg-gray-100 rounded-lg bg-white my-12 mx-8">
       <!-- Card Image -->

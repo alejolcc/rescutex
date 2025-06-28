@@ -14,7 +14,7 @@ defmodule Rescutex.Pets.Pet do
     field :kind, Ecto.Enum, values: [:cat, :dog]
     field :age, :integer
     field :lat, :float
-    field :pictures, :string
+    field :pictures, {:array, :string}
     field :race, :string
     field :embedding, Pgvector.Ecto.Vector
 

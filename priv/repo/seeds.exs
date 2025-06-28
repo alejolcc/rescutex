@@ -53,7 +53,7 @@ File.read!("priv/repo/seed.json") |> Jason.decode!()
     name: name.(),
     lat: lat,
     long: long,
-    pictures: picture,
+    pictures: [picture],
     embedding: embedding,
     race: race.()
   }

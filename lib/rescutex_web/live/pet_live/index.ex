@@ -5,7 +5,6 @@ defmodule RescutexWeb.PetLive.Index do
   alias Rescutex.Pets.Pet
   alias Rescutex.AI.Worker
 
-  alias RescutexWeb.PetLive.CardPetComponent
   import RescutexWeb.CustomComponents
 
   @impl true
@@ -36,7 +35,9 @@ defmodule RescutexWeb.PetLive.Index do
             </.link>
           </div>
           <div :for={{dom_id, pet} <- @streams.pets} id={dom_id}>
-            <.live_component module={CardPetComponent} id={dom_id} pet={pet} />
+            <.link navigate={~p"/pets/#{pet.id}"}>
+              <.pet_card src={pet.pictures} name={pet.name} text={pet.details} />
+            </.link>
           </div>
         </div>
       </div>

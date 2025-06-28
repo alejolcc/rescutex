@@ -82,7 +82,7 @@ defmodule RescutexWeb.PetLive.FormComponent do
   def handle_event("save", %{"pet" => pet_params}, socket) do
     # handle the uploaded files
     socket = handle_upload(socket)
-    [img] = socket.assigns.uploaded_files
+    img = socket.assigns.uploaded_files
 
     # Get the cached values coming from the google map API
     lat = Map.get(socket.assigns, :lat, nil)
