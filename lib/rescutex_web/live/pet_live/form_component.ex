@@ -51,7 +51,7 @@ defmodule RescutexWeb.PetLive.FormComponent do
      socket
      |> assign(assigns)
      |> assign(:uploaded_files, [])
-     |> allow_upload(:avatar, accept: ~w(.jpg .jpeg), max_entries: 1)
+     |> allow_upload(:avatar, accept: ~w(.jpg .jpeg .png), max_entries: 1)
      |> assign_form(changeset)}
   end
 
@@ -69,8 +69,6 @@ defmodule RescutexWeb.PetLive.FormComponent do
   # so we "cache" the result in the socket assigns outside of the form
   def handle_event("geocoding", %{"results" => results}, socket) do
     %{"lat" => lat, "lng" => long} = results["geometry"]["location"]
-
-    IO.inspect(results)
 
     socket =
       socket

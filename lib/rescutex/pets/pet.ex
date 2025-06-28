@@ -26,7 +26,7 @@ defmodule Rescutex.Pets.Pet do
   @doc false
   def changeset(pet, attrs) do
     pet
-    |> cast(attrs, [:age, :details, :name, :lat, :long, :pictures, :race, :embedding])
-    |> validate_required([:age, :details, :name, :lat, :long, :pictures, :race])
+    |> cast(attrs, [:age, :details, :name, :lat, :long, :pictures, :race, :embedding, :kind, :gender])
+    |> validate_required([:kind, :details, :name, :lat, :long, :pictures])
   end
 end
