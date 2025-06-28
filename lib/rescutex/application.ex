@@ -13,10 +13,10 @@ defmodule Rescutex.Application do
       {DNSCluster, query: Application.get_env(:rescutex, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Rescutex.PubSub},
       {Finch, name: Rescutex.Finch},
-      {Goth, name: Rescutex.Goth},
       Rescutex.AI.Worker,
       RescutexWeb.Endpoint
-    ]
+    ]++
+    children(config_env())
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
@@ -30,5 +30,12 @@ defmodule Rescutex.Application do
   def config_change(changed, _new, removed) do
     RescutexWeb.Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  defp children(:test), do: []
+  defp children(_), do: [{Goth, name: Rescutex.Goth}]
+
+  defp config_env do
+    Application.get_env(:rescutex, :current_env)
   end
 end

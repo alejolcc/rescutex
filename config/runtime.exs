@@ -20,6 +20,8 @@ if System.get_env("PHX_SERVER") do
   config :rescutex, RescutexWeb.Endpoint, server: true
 end
 
+config :rescutex, current_env: config_env()
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||

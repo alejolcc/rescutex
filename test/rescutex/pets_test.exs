@@ -33,6 +33,7 @@ defmodule Rescutex.PetsTest do
         name: "some name",
         long: 120.5,
         details: "some details",
+        kind: :dog,
         age: 42,
         lat: 120.5,
         pictures: "some pictures",

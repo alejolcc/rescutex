@@ -31,10 +31,10 @@ defmodule RescutexWeb.PetLive.FormComponent do
         <.input field={@form[:race]} type="text" label="Race" />
         <.input field={@form[:gender]} type="text" label="Gender" />
         <.input field={@form[:details]} type="textarea" label="Details" />
+        <.input field={@form[:kind]} type="select" label="Kind" options={@kind_select} />
 
         <.upload_component uploads={@uploads} />
 
-        <.input field={@form[:kind]} type="select" label="Kind" options={@kind_select} />
         <:actions>
           <.button phx-disable-with="Saving...">Save Pet</.button>
         </:actions>

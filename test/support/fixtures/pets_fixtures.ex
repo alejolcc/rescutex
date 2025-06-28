@@ -17,7 +17,8 @@ defmodule Rescutex.PetsFixtures do
         long: 120.5,
         name: "some name",
         pictures: "some pictures",
-        race: "some race"
+        race: "some race",
+        kind: "dog"
       })
       |> Rescutex.Pets.create_pet()
 
