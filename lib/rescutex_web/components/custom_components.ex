@@ -104,7 +104,7 @@ defmodule RescutexWeb.CustomComponents do
     <div class="flex items-center justify-center p-12">
       <div class="mx-auto w-full max-w-[550px] bg-white">
         <!-- Form -->
-        <form class="py-6 px-9" id="upload-form" phx-submit="save" phx-change="validate">
+        <%!-- <form class="py-6 px-9" id="upload-form" phx-submit="save" phx-change="validate"> --%>
           <div class="mb-6 pt-4">
             <label class="mb-5 block text-xl font-semibold text-[#07074D]">
               Upload File
@@ -171,7 +171,7 @@ defmodule RescutexWeb.CustomComponents do
           <%= for err <- upload_errors(@uploads.avatar) do %>
             <p class="alert alert-danger">{error_to_string(err)}</p>
           <% end %>
-        </form>
+        <%!-- </form> --%>
       </div>
     </div>
     """
