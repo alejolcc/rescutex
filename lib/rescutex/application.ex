@@ -10,6 +10,7 @@ defmodule Rescutex.Application do
     children = [
       RescutexWeb.Telemetry,
       Rescutex.Repo,
+      {Oban, Application.fetch_env!(:rescutex, Oban)},
       {DNSCluster, query: Application.get_env(:rescutex, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Rescutex.PubSub},
       {Finch, name: Rescutex.Finch},
