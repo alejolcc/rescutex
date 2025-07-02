@@ -3,7 +3,7 @@ defmodule RescutexWeb.PetLive.Index do
 
   alias Rescutex.Pets
   alias Rescutex.Pets.Pet
-  alias Rescutex.AI.Worker
+  alias Rescutex.AI.EmbeddingJob
 
   import RescutexWeb.CustomComponents
 
@@ -83,7 +83,7 @@ defmodule RescutexWeb.PetLive.Index do
 
   @impl true
   def handle_info({RescutexWeb.PetLive.FormComponent, {:saved, pet}}, socket) do
-    Worker.calculate_embedding(pet)
+    Oban.insert(Oban, EmbeddingJob.new(%{pet_id: pet.id}))
     {:noreply, stream_insert(socket, :pets, pet)}
   end
 

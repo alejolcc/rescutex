@@ -1,6 +1,8 @@
 defmodule RescutexWeb.Router do
   use RescutexWeb, :router
 
+  import Oban.Web.Router
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -45,6 +47,7 @@ defmodule RescutexWeb.Router do
 
       live_dashboard "/dashboard", metrics: RescutexWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
+      oban_dashboard "/oban"
     end
   end
 end

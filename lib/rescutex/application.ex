@@ -14,7 +14,7 @@ defmodule Rescutex.Application do
       {DNSCluster, query: Application.get_env(:rescutex, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Rescutex.PubSub},
       {Finch, name: Rescutex.Finch},
-      Rescutex.AI.Worker,
+      # Rescutex.AI.Worker,
       RescutexWeb.Endpoint
     ]++
     children(config_env())
