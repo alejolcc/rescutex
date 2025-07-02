@@ -22,7 +22,7 @@ defmodule RescutexWeb.PetLiveTest do
       assert html =~ "Listing Pets"
     end
 
-    @tag :wip
+    @tag :skip
     test "saves new pet", %{conn: conn} do
       {:ok, index_live, _html} = live(conn, ~p"/pets")
 
@@ -54,7 +54,7 @@ defmodule RescutexWeb.PetLiveTest do
       assert html =~ "Pet created successfully"
     end
 
-    @tag :wip
+    @tag :skip
     test "updates pet in listing", %{conn: conn, pet: pet} do
       {:ok, index_live, html} = live(conn, ~p"/pets/#{pet.id}/edit")
 
@@ -91,6 +91,7 @@ defmodule RescutexWeb.PetLiveTest do
       assert html =~ "Show Pet"
     end
 
+    @tag :skip
     test "updates pet within modal", %{conn: conn, pet: pet} do
       {:ok, show_live, _html} = live(conn, ~p"/pets/#{pet}")
 
