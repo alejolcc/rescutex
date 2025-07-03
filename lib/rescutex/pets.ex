@@ -9,7 +9,6 @@ defmodule Rescutex.Pets do
 
   alias Rescutex.Pets.Pet
 
-  # TODO: Remove the pet used as argument from the results
   def get_similar_pets(pet, opts \\ []) do
     limit = Keyword.get(opts, :limit, 6)
 
@@ -20,6 +19,40 @@ defmodule Rescutex.Pets do
         order_by: l2_distance(p.embedding, ^pet.embedding),
         limit: ^limit
     )
+  end
+
+  @doc """
+  Gets all pets that have a L2 distance lower than a given threshold from another pet.
+  It only compares pets of the same kind.
+  Returns an empty list if the pet has no embedding.
+  """
+  def get_pets_within_distance(%Pet{embedding: nil}, _threshold), do: []
+
+  def get_pets_within_distance(%Pet{} = pet, threshold) do
+    Repo.all(
+      from p in Pet,
+        where: p.kind == ^pet.kind,
+        where: p.id != ^pet.id,
+        where: l2_distance(p.embedding, ^pet.embedding) < ^threshold,
+        order_by: l2_distance(p.embedding, ^pet.embedding)
+    )
+  end
+
+  @doc """
+  Returns the L2 distance of all other pets from a given pet.
+
+  It returns a list of `{pet_id, distance}` tuples.
+  Returns an empty list if the pet has no embedding.
+  """
+  def get_all_pets_distances(%Pet{embedding: nil}), do: []
+
+  def get_all_pets_distances(%Pet{} = pet) do
+    query =
+      from p in Pet,
+        where: p.id != ^pet.id,
+        select: {p.id, l2_distance(p.embedding, ^pet.embedding)}
+
+    Repo.all(query)
   end
 
   @doc """

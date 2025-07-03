@@ -12,9 +12,6 @@ defmodule Rescutex.AI do
   def calculate_embedding(%Pet{} = pet) do
     with {:ok, embeddings} <- Rescutex.AI.Google.Client.create_embedding(file_path(pet)) do
       Pets.update_pet(pet, %{embedding: embeddings})
-      Logger.info("Embedding calculated for pet #{pet.id}")
-    else
-      _ -> Logger.error("Error calculating embedding for pet #{pet.id}")
     end
   end
 

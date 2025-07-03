@@ -16,7 +16,7 @@ defmodule RescutexWeb.CustomComponents do
       <img src={"/uploads/#{@src}"} alt="" class=" object-cover w-96 h-96 overflow-hidden" />
       <!-- Card Content -->
       <div class="p-4">
-        <h3 class="font-medium text-gray-600 text-lg my-2 uppercase">{@name}</h3>
+        <h3 class="font-medium text-gray-600 text-lg my-2 uppercase">{@name} {@id}</h3>
         <p class="text-justify">
           {@text}
         </p>

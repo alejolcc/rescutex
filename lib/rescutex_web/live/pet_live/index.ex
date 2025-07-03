@@ -3,7 +3,7 @@ defmodule RescutexWeb.PetLive.Index do
 
   alias Rescutex.Pets
   alias Rescutex.Pets.Pet
-  alias Rescutex.AI.EmbeddingJob
+  alias Rescutex.Jobs.EmbeddingJob
 
   import RescutexWeb.CustomComponents
 
@@ -37,7 +37,7 @@ defmodule RescutexWeb.PetLive.Index do
           <div id="pets" phx-update="stream" class="contents">
             <div :for={{dom_id, pet} <- @streams.pets} id={dom_id}>
               <.link navigate={~p"/pets/#{pet.id}"}>
-                <.pet_card src={pet.pictures} name={pet.name} text={pet.details} />
+                <.pet_card src={pet.pictures} name={pet.name} text={pet.details} id={pet.id} />
               </.link>
             </div>
           </div>
