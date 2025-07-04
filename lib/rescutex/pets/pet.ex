@@ -18,6 +18,8 @@ defmodule Rescutex.Pets.Pet do
     field :race, :string
     field :embedding, Pgvector.Ecto.Vector
 
+    belongs_to :user, Rescutex.Accounts.User
+
     many_to_many :tags, Tag, join_through: PetTag
 
     timestamps(type: :utc_datetime)
@@ -26,7 +28,19 @@ defmodule Rescutex.Pets.Pet do
   @doc false
   def changeset(pet, attrs) do
     pet
-    |> cast(attrs, [:age, :details, :name, :lat, :long, :pictures, :race, :embedding, :kind, :gender])
-    |> validate_required([:kind, :details, :name, :lat, :long, :pictures])
+    |> cast(attrs, [
+      :age,
+      :details,
+      :name,
+      :lat,
+      :long,
+      :pictures,
+      :race,
+      :embedding,
+      :kind,
+      :gender,
+      :user_id
+    ])
+    |> validate_required([:kind, :details, :name, :lat, :long, :pictures, :user_id])
   end
 end

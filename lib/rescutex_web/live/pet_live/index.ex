@@ -48,6 +48,7 @@ defmodule RescutexWeb.PetLive.Index do
     <.modal :if={@live_action in [:new, :edit]} id="pet-modal" show on_cancel={JS.patch(~p"/pets")}>
       <.live_component
         module={RescutexWeb.PetLive.FormComponent}
+        user={@current_user}
         id={@pet.id || :new}
         title={@page_title}
         action={@live_action}

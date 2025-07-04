@@ -2,12 +2,10 @@ defmodule Rescutex.PetsTest do
   use Rescutex.DataCase
 
   alias Rescutex.Pets
+  alias Rescutex.Pets.Pet
+  import Rescutex.PetsFixtures
 
   describe "pets" do
-    alias Rescutex.Pets.Pet
-
-    import Rescutex.PetsFixtures
-
     @invalid_attrs %{
       name: nil,
       long: nil,
@@ -17,7 +15,6 @@ defmodule Rescutex.PetsTest do
       pictures: nil,
       race: nil
     }
-
     test "list_pets/0 returns all pets" do
       pet = pet_fixture()
       assert Enum.member?(Pets.list_pets(), pet)

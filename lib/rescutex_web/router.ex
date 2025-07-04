@@ -23,12 +23,6 @@ defmodule RescutexWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
-
-    live "/pets", PetLive.Index, :index
-    live "/pets/new", PetLive.Index, :new
-    live "/pets/:id/edit", PetLive.Index, :edit
-    live "/pets/:id", PetLive.Show, :show
-    live "/pets/:id/show/edit", PetLive.Show, :edit
   end
 
   ## Authentication routes
@@ -54,6 +48,13 @@ defmodule RescutexWeb.Router do
       on_mount: [{RescutexWeb.UserAuth, :ensure_authenticated}] do
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
+
+      # Pets routes
+      live "/pets", PetLive.Index, :index
+      live "/pets/new", PetLive.Index, :new
+      live "/pets/:id/edit", PetLive.Index, :edit
+      live "/pets/:id", PetLive.Show, :show
+      live "/pets/:id/show/edit", PetLive.Show, :edit
     end
   end
 
@@ -83,7 +84,7 @@ defmodule RescutexWeb.Router do
 
       live_dashboard "/dashboard", metrics: RescutexWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
-      oban_dashboard "/oban"
+      oban_dashboard("/oban")
     end
   end
 end

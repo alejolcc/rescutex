@@ -119,7 +119,9 @@ defmodule RescutexWeb.PetLive.FormComponent do
   end
 
   defp save_pet(socket, :new, pet_params) do
-    case Pets.create_pet(pet_params) do
+    user = socket.assigns.user
+
+    case Pets.create_pet(user, pet_params) do
       {:ok, pet} ->
         notify_parent({:saved, pet})
 

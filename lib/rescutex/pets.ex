@@ -5,8 +5,9 @@ defmodule Rescutex.Pets do
 
   import Pgvector.Ecto.Query
   import Ecto.Query, warn: false
+  alias Rescutex.Accounts.User
   alias Rescutex.Repo
-
+  alias Ecto.Changeset
   alias Rescutex.Pets.Pet
 
   def get_similar_pets(pet, opts \\ []) do
@@ -86,19 +87,14 @@ defmodule Rescutex.Pets do
 
   @doc """
   Creates a pet.
-
-  ## Examples
-
-      iex> create_pet(%{field: value})
-      {:ok, %Pet{}}
-
-      iex> create_pet(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
   """
-  def create_pet(attrs \\ %{}) do
+
+  def create_pet(%User{} = user, attrs \\ %{}) do
+    attrs = Map.put(attrs, "user_id", user.id)
+
     %Pet{}
     |> Pet.changeset(attrs)
+    |> Changeset.put_assoc(:user, user)
     |> Repo.insert()
   end
 
