@@ -3,13 +3,15 @@ defmodule RescutexWeb.PetLiveTest do
 
   import Phoenix.LiveViewTest
   import Rescutex.PetsFixtures
+  import Rescutex.AccountsFixtures
 
   @create_attrs %{}
   @update_attrs %{}
   @invalid_attrs %{}
 
   defp create_pet(_) do
-    pet = pet_fixture()
+    user = user_fixture()
+    pet = pet_fixture(user)
     %{pet: pet}
   end
 
@@ -17,7 +19,10 @@ defmodule RescutexWeb.PetLiveTest do
     setup [:create_pet]
 
     test "lists all pets", %{conn: conn} do
-      {:ok, _index_live, html} = live(conn, ~p"/pets")
+      {:ok, _index_live, html} =
+        conn
+        |> log_in_user(user_fixture())
+        |> live(~p"/pets")
 
       assert html =~ "Listing Pets"
     end
@@ -86,7 +91,11 @@ defmodule RescutexWeb.PetLiveTest do
     setup [:create_pet]
 
     test "displays pet", %{conn: conn, pet: pet} do
-      {:ok, _show_live, html} = live(conn, ~p"/pets/#{pet}")
+      {:ok, _index_live, html} =
+        conn
+        |> log_in_user(user_fixture())
+        |> live(~p"/pets/#{pet}")
+
 
       assert html =~ "Show Pet"
     end

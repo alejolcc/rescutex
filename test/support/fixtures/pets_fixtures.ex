@@ -7,20 +7,20 @@ defmodule Rescutex.PetsFixtures do
   @doc """
   Generate a pet.
   """
-  def pet_fixture(attrs \\ %{}) do
-    {:ok, pet} =
-      attrs
-      |> Enum.into(%{
-        age: 42,
-        details: "some details",
-        lat: 120.5,
-        long: 120.5,
-        name: "some name",
-        pictures: ["some pictures"],
-        race: "some race",
-        kind: "dog"
-      })
-      |> Rescutex.Pets.create_pet()
+  def pet_fixture(user, attrs \\ %{}) do
+    attrs = attrs
+    |> Enum.into(%{
+      "age" => 42,
+      "details" => "some details",
+      "lat" => 120.5,
+      "long" => 120.5,
+      "name" => "some name",
+      "pictures" => ["some pictures"],
+      "race" => "some race",
+      "kind" => "dog"
+    })
+
+    {:ok, pet} = Rescutex.Pets.create_pet(user, attrs)
 
     pet
   end

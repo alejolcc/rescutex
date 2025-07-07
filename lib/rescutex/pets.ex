@@ -97,7 +97,6 @@ defmodule Rescutex.Pets do
     |> Changeset.put_assoc(:user, user)
     |> Repo.insert()
   end
-
   @doc """
   Updates a pet.
 

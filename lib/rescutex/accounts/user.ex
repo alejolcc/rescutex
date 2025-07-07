@@ -4,6 +4,7 @@ defmodule Rescutex.Accounts.User do
 
   schema "users" do
     field :email, :string
+    field :phone1, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
