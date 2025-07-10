@@ -9,6 +9,7 @@ defmodule Rescutex.Repo.Migrations.CreatePets do
       add :details, :text
       add :gender, :string
       add :kind, :string
+      add :post_type, :string
       add :name, :string
       add :lat, :float
       add :long, :float

@@ -41,7 +41,8 @@ defmodule Rescutex.PetsTest do
         "age" => 42,
         "lat" => 120.5,
         "pictures" => ["some pictures"],
-        "race" => "some race"
+        "race" => "some race",
+        "post_type" => "found"
       }
 
       assert {:ok, %Pet{} = pet} = Pets.create_pet(user, valid_attrs)

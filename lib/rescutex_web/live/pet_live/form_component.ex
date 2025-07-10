@@ -32,6 +32,7 @@ defmodule RescutexWeb.PetLive.FormComponent do
         <.input field={@form[:gender]} type="text" label="Gender" />
         <.input field={@form[:details]} type="textarea" label="Details" />
         <.input field={@form[:kind]} type="select" label="Kind" options={@kind_select} />
+        <.input field={@form[:post_type]} type="select" label="Post type" options={@post_type_select} />
 
         <.upload_component uploads={@uploads} />
 
@@ -136,9 +137,17 @@ defmodule RescutexWeb.PetLive.FormComponent do
   end
 
   defp assign_form(socket, %Ecto.Changeset{} = changeset) do
+    post_type_select = [
+      {"Found", "found"},
+      {"Lost", "lost"},
+      {"Transit", "transit"},
+      {"Adoption", "adoption"}
+    ]
+
     socket
     |> assign(:form, to_form(changeset))
     |> assign(:kind_select, [{"Cat", "cat"}, {"Dog", "dog"}])
+    |> assign(:post_type_select, post_type_select)
     |> assign(:map_error, map_error(changeset))
   end
 

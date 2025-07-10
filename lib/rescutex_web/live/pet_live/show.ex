@@ -92,6 +92,10 @@ defmodule RescutexWeb.PetLive.Show do
                       <div class="px-4 py-2 font-semibold">Race</div>
                       <div class="px-4 py-2">{@pet.race}</div>
                     </div>
+                    <div class="grid grid-cols-2">
+                      <div class="px-4 py-2 font-semibold">Post Type</div>
+                      <div class="px-4 py-2">{@pet.post_type}</div>
+                    </div>
                   </div>
                   <!-- 2nd col -->
                   <div>

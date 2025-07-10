@@ -12,7 +12,7 @@
 
 age = fn -> Enum.random(1..10) end
 gender = fn -> Enum.random([:male, :female]) end
-kind = fn -> Enum.random([:dog, :cat]) end
+# kind = fn -> Enum.random([:dog, :cat]) end
 
 name = fn ->
   Enum.random([
@@ -49,7 +49,7 @@ File.read!("priv/repo/seed.json") |> Jason.decode!()
     age: age.(),
     details: "This is a pet",
     gender: gender.(),
-    kind: kind.(),
+    kind: :dog,
     name: name.(),
     lat: lat,
     long: long,

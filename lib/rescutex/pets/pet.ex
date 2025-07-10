@@ -17,6 +17,7 @@ defmodule Rescutex.Pets.Pet do
     field :pictures, {:array, :string}
     field :race, :string
     field :embedding, Pgvector.Ecto.Vector
+    field :post_type, Ecto.Enum, values: [:found, :lost, :transit, :adoption]
 
     belongs_to :user, Rescutex.Accounts.User
 
@@ -39,8 +40,9 @@ defmodule Rescutex.Pets.Pet do
       :embedding,
       :kind,
       :gender,
-      :user_id
+      :user_id,
+      :post_type
     ])
-    |> validate_required([:kind, :details, :name, :lat, :long, :pictures, :user_id])
+    |> validate_required([:kind, :details, :name, :lat, :long, :pictures, :user_id, :post_type])
   end
 end
