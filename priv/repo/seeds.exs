@@ -51,8 +51,7 @@ File.read!("priv/repo/seed.json") |> Jason.decode!()
     gender: gender.(),
     kind: :dog,
     name: name.(),
-    lat: lat,
-    long: long,
+    location: %Geo.Point{coordinates: {long, lat},  srid: 4326, properties: {}},
     pictures: [picture],
     embedding: embedding,
     race: race.()

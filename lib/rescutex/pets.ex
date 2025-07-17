@@ -2,13 +2,15 @@ defmodule Rescutex.Pets do
   @moduledoc """
   The Pets context.
   """
-
-  import Pgvector.Ecto.Query
   import Ecto.Query, warn: false
+  import Geo.PostGIS, only: [st_dwithin: 3]
+  import Pgvector.Ecto.Query
+
   alias Rescutex.Accounts.User
+  alias Rescutex.Pets.Pet
   alias Rescutex.Repo
   alias Ecto.Changeset
-  alias Rescutex.Pets.Pet
+  alias Geo.Point
 
   def get_similar_pets(pet, opts \\ []) do
     limit = Keyword.get(opts, :limit, 6)
@@ -27,9 +29,9 @@ defmodule Rescutex.Pets do
   It only compares pets of the same kind.
   Returns an empty list if the pet has no embedding.
   """
-  def get_pets_within_distance(%Pet{embedding: nil}, _threshold), do: []
+  def get_similar_pets_within_distance(%Pet{embedding: nil}, _threshold), do: []
 
-  def get_pets_within_distance(%Pet{} = pet, threshold) do
+  def get_similar_pets_within_distance(%Pet{} = pet, threshold) do
     Repo.all(
       from p in Pet,
         where: p.kind == ^pet.kind,
@@ -38,6 +40,7 @@ defmodule Rescutex.Pets do
         order_by: l2_distance(p.embedding, ^pet.embedding)
     )
   end
+
 
   @doc """
   Returns the L2 distance of all other pets from a given pet.
@@ -97,6 +100,17 @@ defmodule Rescutex.Pets do
     |> Changeset.put_assoc(:user, user)
     |> Repo.insert()
   end
+
+  def get_lat(%Pet{} = pet) do
+    {_long, lat} = pet.location.coordinates
+    lat
+  end
+
+  def get_long(%Pet{} = pet) do
+    {long, _lat} = pet.location.coordinates
+    long
+  end
+
   @doc """
   Updates a pet.
 
@@ -142,5 +156,24 @@ defmodule Rescutex.Pets do
   """
   def change_pet(%Pet{} = pet, attrs \\ %{}) do
     Pet.changeset(pet, attrs)
+  end
+
+  @doc """
+  Gets all pets within a given distance (in meters) from a location.
+
+  The distance is calculated on a spheroid, so it is accurate.
+
+  ## Examples
+
+      iex> get_pets_in_area(-34.60, -58.38, 1000)
+      [%Pet{}, ...]
+
+  """
+  def get_pets_in_area(pet, distance)
+      when  is_number(distance) do
+    point = pet.location
+
+    from(p in Pet, where: st_dwithin(p.location, ^point, ^distance))
+    |> Repo.all()
   end
 end

@@ -66,7 +66,8 @@ defmodule Rescutex.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:oban, "~> 2.19"},
-      {:oban_web, "~> 2.10"}
+      {:oban_web, "~> 2.10"},
+      {:geo_postgis, "~> 3.7"}
     ]
   end
 

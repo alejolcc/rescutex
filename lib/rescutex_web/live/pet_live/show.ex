@@ -110,8 +110,8 @@ defmodule RescutexWeb.PetLive.Show do
                   <div>
                     <.embeded_map
                       api_key={@api_key}
-                      latitud={@pet.lat}
-                      longitud={@pet.long}
+                      latitud={Pets.get_lat(@pet)}
+                      longitud={Pets.get_long(@pet)}
                       width={350}
                       height={300}
                     />

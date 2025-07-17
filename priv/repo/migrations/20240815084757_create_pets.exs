@@ -3,6 +3,7 @@ defmodule Rescutex.Repo.Migrations.CreatePets do
 
   def change do
     execute("CREATE EXTENSION vector;")
+    execute("CREATE EXTENSION postgis;")
 
     create table(:pets) do
       add :age, :integer

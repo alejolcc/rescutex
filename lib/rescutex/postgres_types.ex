@@ -1,5 +1,5 @@
   Postgrex.Types.define(
     Rescutex.PostgrexTypes,
-    Pgvector.extensions() ++ Ecto.Adapters.Postgres.extensions(),
-    []
+    [Geo.PostGIS.Extension] ++ Pgvector.extensions() ++ Ecto.Adapters.Postgres.extensions(),
+    json: Jason
   )

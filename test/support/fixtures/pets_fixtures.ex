@@ -12,8 +12,7 @@ defmodule Rescutex.PetsFixtures do
     |> Enum.into(%{
       "age" => 42,
       "details" => "some details",
-      "lat" => 120.5,
-      "long" => 120.5,
+      "location" => %{"lat" => 120.5, "long" => 120.5},
       "name" => "some name",
       "pictures" => ["some pictures"],
       "race" => "some race",

@@ -41,6 +41,9 @@ config :esbuild,
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
+config :geo_postgis,
+  json_library: Jason
+
 # Configure tailwind (the version is required)
 config :tailwind,
   version: "3.4.3",
@@ -69,4 +72,3 @@ config :rescutex, Oban,
   repo: Rescutex.Repo,
   plugins: [Oban.Plugins.Pruner],
   queues: [default: 10]
-

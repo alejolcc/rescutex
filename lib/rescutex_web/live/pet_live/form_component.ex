@@ -58,6 +58,14 @@ defmodule RescutexWeb.PetLive.FormComponent do
 
   @impl true
   def handle_event("validate", %{"pet" => pet_params}, socket) do
+    location = Map.get(socket.assigns, :location)
+    img = socket.assigns.uploaded_files
+
+    pet_params =
+      pet_params
+      |> Map.put("location", location)
+      |> Map.put("pictures", img)
+
     changeset =
       socket.assigns.pet
       |> Pets.change_pet(pet_params)
@@ -73,8 +81,7 @@ defmodule RescutexWeb.PetLive.FormComponent do
 
     socket =
       socket
-      |> assign(:lat, lat)
-      |> assign(:long, long)
+      |> assign(:location, %{"lat" => lat, "long" => long})
 
     {:noreply, socket}
   end
@@ -85,15 +92,11 @@ defmodule RescutexWeb.PetLive.FormComponent do
     socket = handle_upload(socket)
     img = socket.assigns.uploaded_files
 
-    # Get the cached values coming from the google map API
-    lat = Map.get(socket.assigns, :lat, nil)
-    long = Map.get(socket.assigns, :long, nil)
+    location = Map.get(socket.assigns, :location, nil)
 
-    # TODO: We should first send the picture to a temp file and after the validation save in the upload folder
     pet_params =
       pet_params
-      |> Map.put("lat", lat)
-      |> Map.put("long", long)
+      |> Map.put("location", location)
       |> Map.put("pictures", img)
 
     save_pet(socket, socket.assigns.action, pet_params)
@@ -104,20 +107,21 @@ defmodule RescutexWeb.PetLive.FormComponent do
     {:noreply, cancel_upload(socket, :avatar, ref)}
   end
 
-  defp save_pet(socket, :edit, pet_params) do
-    case Pets.update_pet(socket.assigns.pet, pet_params) do
-      {:ok, pet} ->
-        notify_parent({:saved, pet})
+  # TODO: In case the picture is updated we need to create a new embedding otherwise we should not notifiy
+  # defp save_pet(socket, :edit, pet_params) do
+  #   case Pets.update_pet(socket.assigns.pet, pet_params) do
+  #     {:ok, pet} ->
+  #       notify_parent({:saved, pet})
 
-        {:noreply,
-         socket
-         |> put_flash(:info, "Pet updated successfully")
-         |> push_patch(to: socket.assigns.patch)}
+  #       {:noreply,
+  #        socket
+  #        |> put_flash(:info, "Pet updated successfully")
+  #        |> push_patch(to: socket.assigns.patch)}
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign_form(socket, changeset)}
-    end
-  end
+  #     {:error, %Ecto.Changeset{} = changeset} ->
+  #       {:noreply, assign_form(socket, changeset)}
+  #   end
+  # end
 
   defp save_pet(socket, :new, pet_params) do
     user = socket.assigns.user
@@ -153,8 +157,9 @@ defmodule RescutexWeb.PetLive.FormComponent do
 
   defp notify_parent(msg), do: send(self(), {__MODULE__, msg})
 
-  defp map_error(%Ecto.Changeset{errors: errors}) do
-    if Keyword.has_key?(errors, :lat) or Keyword.has_key?(errors, :long) do
+  defp map_error(%Ecto.Changeset{errors: errors} = ch) do
+    IO.inspect ch
+    if Keyword.has_key?(errors, :location) do
       ["Select the location"]
     else
       []
