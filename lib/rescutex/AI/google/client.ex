@@ -9,8 +9,6 @@ defmodule Rescutex.AI.Google.Client do
 
   require Logger
 
-  alias Tesla.Multipart
-
   use Tesla
   plug Tesla.Middleware.JSON
   plug Tesla.Middleware.BaseUrl, @base_url
@@ -95,149 +93,59 @@ defmodule Rescutex.AI.Google.Client do
     end
   end
 
-  def create_rag(rag_name) do
-    uri = "/ragCorpora"
+  def remove_background(file_path) do
+    uri = "/publishers/google/models/gemini-2.0-flash-preview-image-generation:generateContent"
+
+    prompt =
+      """
+      This is a picture of a pet I need to compare the pet with others pets,
+      can you remove all the background and keep only the same image of the pet with background white.
+      Do not change anything from the original pet, mantain all the morfology
+      """
 
     auth = Goth.fetch!(Rescutex.Goth) |> Map.get(:token)
 
     headers = [
       {"Authorization", "Bearer #{auth}"},
-      {"Content-Type", "application/json"}
+      {"Content-Type", "application/json"},
+      {"charset", "utf-8"}
     ]
 
     body = %{
-      displayName: rag_name
-    }
-
-    post(uri, body, headers: headers)
-    |> handle_response()
-  end
-
-  def list_rag() do
-    uri = "/ragCorpora"
-
-    auth = Goth.fetch!(Rescutex.Goth) |> Map.get(:token)
-
-    headers = [
-      {"Authorization", "Bearer #{auth}"},
-      {"Content-Type", "application/json"}
-    ]
-
-    get(uri, headers: headers)
-    |> handle_response()
-  end
-
-  def get_corpus(corpus_id) do
-    uri = "/ragCorpora/#{corpus_id}"
-
-    auth = Goth.fetch!(Rescutex.Goth) |> Map.get(:token)
-
-    headers = [
-      {"Authorization", "Bearer #{auth}"},
-      {"Content-Type", "application/json"}
-    ]
-
-    get(uri, headers: headers)
-    |> handle_response()
-  end
-
-  def list_files(corpus_id) do
-    uri = "/ragCorpora/#{corpus_id}/ragFiles"
-
-    auth = Goth.fetch!(Rescutex.Goth) |> Map.get(:token)
-
-    headers = [
-      {"Authorization", "Bearer #{auth}"},
-      {"Content-Type", "application/json"}
-    ]
-
-    get(uri, headers: headers)
-    |> handle_response()
-  end
-
-  def upload_file_to_rag(file_path) do
-    auth = Goth.fetch!(Rescutex.Goth) |> Map.get(:token)
-
-    # 2. Construir la URL
-    url =
-      "https://us-central1-aiplatform.googleapis.com/upload/v1/projects/alma-imperative/locations/us-central1/ragCorpora/6917529027641081856/ragFiles:upload"
-
-    file_name = Path.basename(file_path)
-
-    # 3. Crear el multipart
-    multipart =
-      Multipart.new()
-      |> Multipart.add_field(
-        "metadata",
-        Jason.encode!(%{
-          rag_file: %{
-            display_name: file_name
-          }
-        })
-      )
-      |> Multipart.add_file(file_path, name: "file")
-
-    # 4. Definir los headers
-    headers = [
-      {"X-Goog-Upload-Protocol", "multipart"},
-      {"Authorization", "Bearer #{auth}"}
-    ]
-
-    # 5. Enviar la petición con Tesla
-    Tesla.post(url, multipart, headers: headers)
-    |> handle_response()
-  end
-
-  def import_to_rag(gcs_uri) do
-    auth = Goth.fetch!(Rescutex.Goth) |> Map.get(:token)
-
-    url =
-      "https://us-central1-aiplatform.googleapis.com/v1/projects/alma-imperative/locations/us-central1/ragCorpora/6917529027641081856/ragFiles:import"
-
-    body =
-      %{
-        import_rag_files_config: %{
-          gcs_source: %{
-            uris: gcs_uri
-          }
-        }
-      }
-      |> Jason.encode!()
-
-    headers = [
-      {"Content-Type", "application/json; charset=utf-8"},
-      {"Authorization", "Bearer #{auth}"}
-    ]
-
-    Tesla.post(url, body, headers: headers)
-    |> handle_response()
-  end
-
-  def retrieve(query, opts \\ []) do
-    uri = ":retrieveContexts"
-    vector_distance_threshold = opts[:vector_distance_threshold] || 0.7
-
-    body = %{
-      vertex_rag_store: %{
-        rag_resources: %{
-          rag_corpus: "projects/97522503747/locations/us-central1/ragCorpora/6917529027641081856"
-        },
-        vector_distance_threshold: vector_distance_threshold
+      contents: %{
+        role: "USER",
+        parts: [
+          %{inline_data: %{mime_type: "image/jpg", data:  File.read!(file_path) |> :base64.encode()}},
+          %{text: prompt}
+        ]
       },
-      query: %{
-        text: query
+      generation_config: %{
+        response_modalities: ["TEXT", "IMAGE"]
+      },
+      safetySettings: %{
+        method: "PROBABILITY",
+        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+        threshold: "BLOCK_MEDIUM_AND_ABOVE"
       }
     }
 
-    auth = Goth.fetch!(Rescutex.Goth) |> Map.get(:token)
+    with {:ok, body, _headers} <- post(uri, body, headers: headers) |> handle_response() do
+      usage_metadata = Map.get(body, "usageMetadata")
 
-    headers = [
-      {"Authorization", "Bearer #{auth}"},
-      {"Content-Type", "application/json"}
-    ]
+      Logger.info(inspect(usage_metadata))
+      Logger.debug("Body: #{inspect(body)}")
 
-    post(uri, body, headers: headers)
-    |> handle_response()
+      if usage_metadata["candidatesTokenCount"] && usage_metadata["candidatesTokenCount"] > 0 do
+        {:ok, body}
+      else
+        message =
+          body
+          |> Map.get("promptFeedback", %{})
+          |> Map.get("blockReason", "Not available")
+
+        {:error, Error.new(:internal_error, 500, message)}
+      end
+    end
   end
 
   def create_embedding(file_path) do
