@@ -99,8 +99,9 @@ defmodule Rescutex.AI.Google.Client do
     prompt =
       """
       This is a picture of a pet I need to compare the pet with others pets,
-      can you remove all the background and keep only the same image of the pet with background white.
-      Do not change anything from the original pet, mantain all the morfology
+      Remove the existing background from this image and replace it with a solid white background.
+      Do not alter or modify the subject in any way. Ensure the subject remains clear, well-defined,
+      and perfectly preserved.
       """
 
     auth = Goth.fetch!(Rescutex.Goth) |> Map.get(:token)
@@ -120,6 +121,7 @@ defmodule Rescutex.AI.Google.Client do
         ]
       },
       generation_config: %{
+        temperature: 0,
         response_modalities: ["TEXT", "IMAGE"]
       },
       safetySettings: %{

@@ -28,6 +28,18 @@ defmodule RescutexWeb.Router do
   ## Authentication routes
 
   scope "/", RescutexWeb do
+    pipe_through [:browser]
+
+    delete "/users/log_out", UserSessionController, :delete
+
+    live_session :current_user,
+      on_mount: [{RescutexWeb.UserAuth, :mount_current_user}] do
+      live "/users/confirm/:token", UserConfirmationLive, :edit
+      live "/users/confirm", UserConfirmationInstructionsLive, :new
+    end
+  end
+
+  scope "/", RescutexWeb do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
     live_session :redirect_if_user_is_authenticated,
@@ -55,18 +67,6 @@ defmodule RescutexWeb.Router do
       live "/pets/:id/edit", PetLive.Index, :edit
       live "/pets/:id", PetLive.Show, :show
       live "/pets/:id/show/edit", PetLive.Show, :edit
-    end
-  end
-
-  scope "/", RescutexWeb do
-    pipe_through [:browser]
-
-    delete "/users/log_out", UserSessionController, :delete
-
-    live_session :current_user,
-      on_mount: [{RescutexWeb.UserAuth, :mount_current_user}] do
-      live "/users/confirm/:token", UserConfirmationLive, :edit
-      live "/users/confirm", UserConfirmationInstructionsLive, :new
     end
   end
 

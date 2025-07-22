@@ -3,14 +3,13 @@ defmodule Rescutex.Pets do
   The Pets context.
   """
   import Ecto.Query, warn: false
-  import Geo.PostGIS, only: [st_dwithin: 3]
+  import Geo.PostGIS
   import Pgvector.Ecto.Query
 
   alias Rescutex.Accounts.User
   alias Rescutex.Pets.Pet
   alias Rescutex.Repo
   alias Ecto.Changeset
-  alias Geo.Point
 
   def get_similar_pets(pet, opts \\ []) do
     limit = Keyword.get(opts, :limit, 6)
@@ -165,15 +164,121 @@ defmodule Rescutex.Pets do
 
   ## Examples
 
-      iex> get_pets_in_area(-34.60, -58.38, 1000)
+      iex> st_dwithin_in_meters(pet, 1000)
       [%Pet{}, ...]
 
   """
   def get_pets_in_area(pet, distance)
-      when  is_number(distance) do
-    point = pet.location
+      when is_number(distance) do
+    filters = [distance: {pet.location, distance}]
 
-    from(p in Pet, where: st_dwithin(p.location, ^point, ^distance))
+    query = (from p in Pet, where: p.id != ^pet.id)
+
+    query
+    |> apply_filters(filters)
     |> Repo.all()
+  end
+
+
+  @doc """
+  Calculates the distance from a given pet to all other pets.
+
+  Returns a list of maps, each containing the `:id` of another pet and its
+  distance in meters from the given `pet`. The list is ordered by distance,
+  from the closest to the farthest.
+
+  The given pet itself is excluded from the results. If the given pet does
+  not have a location, an empty list is returned.
+
+  ## Examples
+
+      iex> pet_with_location = %Rescutex.Pets.Pet{id: 1, location: %Geo.Point{coordinates: {-58.38, -34.60}, srid: 4326}}
+      iex> # ... assume other pets exist in the database
+      iex> list_pets_with_distance(pet_with_location)
+      [%{id: 2, distance: 1234.56}, ...]
+
+      iex> pet_without_location = %Rescutex.Pets.Pet{id: 4, location: nil}
+      iex> list_pets_with_distance(pet_without_location)
+      []
+  """
+  def list_pets_with_distance(%Pet{} = pet) do
+    # Return an empty list if the source pet has no location
+    if is_nil(pet.location) do
+      []
+    else
+      from(p in Pet,
+        # We don't want the source pet in the list
+        where: p.id != ^pet.id,
+        # Order the results by the closest distance first
+        order_by: [asc: st_distance_in_meters(p.location, ^(pet.location))],
+        # Select a map containing the full pet struct and the calculated distance
+        select: %{
+          id: p.id,
+          distance: st_distance_in_meters(p.location, ^(pet.location))
+        }
+      )
+      |> Repo.all()
+    end
+  end
+
+  def apply_filters(query, []), do: query
+
+  def apply_filters(query, [{_key, _val} = filter | rest]) do
+    filter
+    |> do_apply_filter(query)
+    |> apply_filters(rest)
+  end
+
+  # Priv
+
+  defp do_apply_filter({_, ""}, query), do: query
+  defp do_apply_filter({_, nil}, query), do: query
+
+  defp do_apply_filter({:distance, {point, meters}}, query) when is_number(meters) do
+    from(q in query, where: st_dwithin_in_meters(q.location, ^point, ^meters))
+  end
+
+  defp do_apply_filter(_, query) do
+    query
+  end
+
+  @doc """
+  Searches for pets based on distance, similarity, and kind.
+
+  It finds pets that are:
+  - Within a given `distance_in_meters` from the provided `pet`.
+  - Have a `l2_distance` (embedding similarity) lower than the given `threshold`.
+  - Are of the same `kind` as the `pet`.
+
+  The results are ordered by embedding similarity first, and then by distance.
+  Returns an empty list if the pet has no location or embedding, or if the
+  required options are not provided.
+
+  ## Examples
+
+      iex> search_for_pet(pet, distance_in_meters: 5000, threshold: 0.5)
+      [%Pet{}, ...]
+
+  """
+  def search_for_pet(%Pet{} = pet, opts \\ []) do
+    distance_in_meters = Keyword.get(opts, :distance_in_meters, 10000)
+    threshold = Keyword.get(opts, :threshold, 0.7)
+
+    # Basic validation to ensure we have what we need.
+    if is_nil(distance_in_meters) or is_nil(threshold) or is_nil(pet.location) or is_nil(pet.embedding) do
+      []
+    else
+      from(p in Pet,
+        where: p.id != ^pet.id,
+        where: p.kind == ^pet.kind,
+        where: st_dwithin_in_meters(p.location, ^pet.location, ^distance_in_meters),
+        where: l2_distance(p.embedding, ^pet.embedding) < ^threshold,
+        order_by: [
+          asc: l2_distance(p.embedding, ^pet.embedding),
+          asc: st_distance_in_meters(p.location, ^pet.location)
+        ]
+      )
+      |> Repo.all()
+    end
   end
 end
