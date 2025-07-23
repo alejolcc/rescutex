@@ -21,6 +21,7 @@ defmodule Rescutex.Pets.Pet do
 
     belongs_to :user, Rescutex.Accounts.User
 
+    # REVIEW: Not sure if this will be used
     many_to_many :tags, Tag, join_through: PetTag
 
     timestamps(type: :utc_datetime)

@@ -65,11 +65,11 @@ defmodule RescutexWeb.PetLive.Show do
             <!-- End of friends card -->
           </div>
           <!-- Right Side -->
-          <div class="w-full md:w-9/12 mx-2 h-64">
+          <div class="w-full md:w-9/12 mx-2 flex flex-col">
             <!-- About Section -->
             <div class="bg-white p-3 shadow-sm rounded-sm">
               <div class="text-gray-700">
-                <div class="grid md:grid-cols-3 text-sm">
+                <div class="grid md:grid-cols-2 text-sm">
                   <!-- 1st col -->
                   <div>
                     <div class="grid grid-cols-2">
@@ -99,15 +99,6 @@ defmodule RescutexWeb.PetLive.Show do
                   </div>
                   <!-- 2nd col -->
                   <div>
-                    <div class="justify-items-start grid grid-cols-2">
-                      <.pet_tag tag="pelo largo" />
-                      <.pet_tag tag="blanco" />
-                      <.pet_tag tag="negro" />
-                      <.pet_tag tag="grande" />
-                    </div>
-                  </div>
-                  <!-- 3rd col -->
-                  <div>
                     <.embeded_map
                       api_key={@api_key}
                       latitud={Pets.get_lat(@pet)}
@@ -119,14 +110,13 @@ defmodule RescutexWeb.PetLive.Show do
                 </div>
               </div>
             </div>
-            <!-- End of about section -->
             <div class="my-4"></div>
-            <!-- Experience and education -->
-            <div class="bg-white p-3 shadow-sm rounded-sm">
+            <!-- Details -->
+            <div class="bg-white p-3 shadow-sm rounded-sm flex-grow">
               <div class="grid ">
                 <div>
-                  <div class="flex items-center font-semibold text-gray-900 leading-8 mb-3">
-                    <span clas="text-green-500">
+                  <div class="flex items-center space-x-2 font-semibold text-gray-900 leading-8 mb-3">
+                    <span class="text-gray-500">
                       <svg
                         class="h-5"
                         xmlns="http://www.w3.org/2000/svg"
