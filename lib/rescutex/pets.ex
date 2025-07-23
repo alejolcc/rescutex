@@ -40,7 +40,6 @@ defmodule Rescutex.Pets do
     )
   end
 
-
   @doc """
   Returns the L2 distance of all other pets from a given pet.
 
@@ -67,8 +66,12 @@ defmodule Rescutex.Pets do
       [%Pet{}, ...]
 
   """
-  def list_pets do
-    Repo.all(Pet)
+  def list_pets(opts \\ []) do
+    filters = Keyword.get(opts, :filters, [])
+
+    Pet
+    |> apply_filters(filters)
+    |> Repo.all()
   end
 
   @doc """
@@ -172,13 +175,12 @@ defmodule Rescutex.Pets do
       when is_number(distance) do
     filters = [distance: {pet.location, distance}]
 
-    query = (from p in Pet, where: p.id != ^pet.id)
+    query = from p in Pet, where: p.id != ^pet.id
 
     query
     |> apply_filters(filters)
     |> Repo.all()
   end
-
 
   @doc """
   Calculates the distance from a given pet to all other pets.
@@ -210,11 +212,11 @@ defmodule Rescutex.Pets do
         # We don't want the source pet in the list
         where: p.id != ^pet.id,
         # Order the results by the closest distance first
-        order_by: [asc: st_distance_in_meters(p.location, ^(pet.location))],
+        order_by: [asc: st_distance_in_meters(p.location, ^pet.location)],
         # Select a map containing the full pet struct and the calculated distance
         select: %{
           id: p.id,
-          distance: st_distance_in_meters(p.location, ^(pet.location))
+          distance: st_distance_in_meters(p.location, ^pet.location)
         }
       )
       |> Repo.all()
@@ -236,6 +238,15 @@ defmodule Rescutex.Pets do
 
   defp do_apply_filter({:distance, {point, meters}}, query) when is_number(meters) do
     from(q in query, where: st_dwithin_in_meters(q.location, ^point, ^meters))
+  end
+
+  defp do_apply_filter({:post_type, post_type}, query)
+       when post_type in [:lost, :found, :transit, :adoption] do
+    from(q in query, where: q.post_type == ^post_type)
+  end
+
+  defp do_apply_filter({:kind, kind}, query) when kind in [:dog, :cat] do
+    from(q in query, where: q.kind == ^kind)
   end
 
   defp do_apply_filter(_, query) do
@@ -265,7 +276,8 @@ defmodule Rescutex.Pets do
     threshold = Keyword.get(opts, :threshold, 0.7)
 
     # Basic validation to ensure we have what we need.
-    if is_nil(distance_in_meters) or is_nil(threshold) or is_nil(pet.location) or is_nil(pet.embedding) do
+    if is_nil(distance_in_meters) or is_nil(threshold) or is_nil(pet.location) or
+         is_nil(pet.embedding) do
       []
     else
       from(p in Pet,

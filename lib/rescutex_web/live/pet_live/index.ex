@@ -12,7 +12,9 @@ defmodule RescutexWeb.PetLive.Index do
     socket =
       socket
       |> assign(:api_key, Application.get_env(:rescutex, :google_api_key))
-      |> stream(:pets, Pets.list_pets(), dom_id: &"pet-#{&1.id}")
+      |> stream_configure(:pets, dom_id: &"pet-#{&1.id}")
+      |> stream(:pets, Pets.list_pets())
+      |> assign(:tab_index, 0)
 
     {:ok, socket}
   end
@@ -27,9 +29,17 @@ defmodule RescutexWeb.PetLive.Index do
       >
       </script>
 
+      <.tab_list id="index-search-tabs" selected={@tab_index}>
+        <:tab id="all_pets" title="All Pets"></:tab>
+        <:tab id="lost" title="Lost"></:tab>
+        <:tab id="found" title="Found"></:tab>
+        <:tab id="adoption" title="Adoption"></:tab>
+        <:tab id="transit" title="Transit"></:tab>
+      </.tab_list>
+
       <div class="relative items-center justify-center">
         <div class="grid lg:grid-cols-4 gap-4 sm:grid-cols-1">
-          <div>
+          <div id="new_pet_button" phx-update="ignore">
             <.link navigate={~p"/pets/new"}>
               <.pet_card_button />
             </.link>
@@ -89,10 +99,55 @@ defmodule RescutexWeb.PetLive.Index do
   end
 
   @impl true
+  # TODO: When the user clik on new pet take in mind the tab index to set the proper post type
+  def handle_event("tab_clicked", %{"index" => tab_index}, socket) do
+    filter =
+      case tab_index do
+        1 -> :lost
+        2 -> :found
+        3 -> :transit
+        4 -> :adoption
+        _ -> :none
+      end
+
+    socket =
+      socket
+      |> assign(:tab_index, tab_index)
+      |> assign_pets(filter)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("delete", %{"id" => id}, socket) do
     pet = Pets.get_pet!(id)
     {:ok, _} = Pets.delete_pet(pet)
 
     {:noreply, stream_delete(socket, :pets, pet)}
+  end
+
+  defp assign_pets(socket, :lost) do
+    socket
+    |> stream(:pets, Pets.list_pets(filters: [post_type: :lost]), reset: true)
+  end
+
+  defp assign_pets(socket, :found) do
+    socket
+    |> stream(:pets, Pets.list_pets(filters: [post_type: :found]), reset: true)
+  end
+
+  defp assign_pets(socket, :transit) do
+    socket
+    |> stream(:pets, Pets.list_pets(filters: [post_type: :transit]), reset: true)
+  end
+
+  defp assign_pets(socket, :adoption) do
+    socket
+    |> stream(:pets, Pets.list_pets(filters: [post_type: :adoption]), reset: true)
+  end
+
+  defp assign_pets(socket, :none) do
+    socket
+    |> stream(:pets, Pets.list_pets(), reset: true)
   end
 end
