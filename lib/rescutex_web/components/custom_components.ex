@@ -50,7 +50,7 @@ defmodule RescutexWeb.CustomComponents do
       |> assign(:src, src)
 
     ~H"""
-    <div class="lg:m-4 shadow-md hover:shadow-lg hover:bg-gray-100 rounded-lg bg-white my-12 mx-8">
+    <div class="m-4 shadow-md hover:shadow-lg hover:bg-gray-100 rounded-lg bg-white">
       <!-- Card Image -->
       <img src={"/uploads/#{@src}"} alt="" class="object-cover w-96 h-96 overflow-hidden" />
       <!-- Card Content -->
@@ -74,7 +74,7 @@ defmodule RescutexWeb.CustomComponents do
 
   def pet_card_button(assigns) do
     ~H"""
-    <div class="lg:m-4 shadow-md hover:shadow-lg hover:bg-gray-100 rounded-lg bg-white my-12 mx-8">
+    <div class="m-4 shadow-md hover:shadow-lg hover:bg-gray-100 rounded-lg bg-white">
       <!-- Card Image -->
       <img src="/images/perro.png" alt="" class="object-cover w-96 h-96 overflow-hidden  object-scale-down"  />
       <!-- Card Content -->
@@ -113,7 +113,7 @@ defmodule RescutexWeb.CustomComponents do
       style="border:0"
       loading="lazy"
       allowfullscreen
-      referrerpolicy="no-referrer"
+      referrerpolicy="strict-origin-when-cross-origin"
       src={@map_url}
     >
       <p>Your browser does not support iframes.</p>

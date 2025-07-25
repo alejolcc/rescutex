@@ -74,6 +74,15 @@ defmodule Rescutex.Pets do
     |> Repo.all()
   end
 
+  def list_pets_for_user(user, opts \\ []) do
+    filters = Keyword.get(opts, :filters, [])
+
+    Pet
+    |> where([p], p.user_id == ^user.id)
+    |> apply_filters(filters)
+    |> Repo.all()
+  end
+
   @doc """
   Gets a single pet.
 

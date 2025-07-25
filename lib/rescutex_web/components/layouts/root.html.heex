@@ -14,12 +14,14 @@
   <header>
     <nav class="navbar navbar-expand-lg shadow-md py-2 bg-white relative flex items-center w-full justify-between">
       <div class="flex ml-4 items-center gap-4">
-        <a href="/">
+        <a href="/pets">
           <img src={~p"/images/rescute_logo.png"} width="150" />
         </a>
-        <a href={~p"/my_pets"} class="inline-flex px-4 py-2 font-semibold text-gray-800 rounded-t">
-          My Pets
-        </a>
+        <%= if @current_user do %>
+          <a href={~p"/users/my_pets"} class="inline-flex px-4 py-2 font-semibold text-gray-800 rounded-t">
+            My Pets
+          </a>
+        <% end %>
       </div>
       <%= if @current_user do %>
         <div class="px-6 flex flex-wrap items-center justify-between">

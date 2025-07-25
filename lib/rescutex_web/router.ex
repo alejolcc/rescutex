@@ -60,6 +60,7 @@ defmodule RescutexWeb.Router do
       on_mount: [{RescutexWeb.UserAuth, :ensure_authenticated}] do
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
+      live "/users/my_pets", UserLive.PetsLive, :index
 
       # Pets routes
       live "/pets", PetLive.Index, :index
