@@ -97,7 +97,13 @@ defmodule Rescutex.Pets do
       ** (Ecto.NoResultsError)
 
   """
-  def get_pet!(id), do: Repo.get!(Pet, id)
+  def get_pet!(id, opts \\ []) do
+    preload = Keyword.get(opts, :preload, [:user])
+
+    Pet
+    |> Repo.get!(id)
+    |> Repo.preload(preload)
+  end
 
   @doc """
   Creates a pet.

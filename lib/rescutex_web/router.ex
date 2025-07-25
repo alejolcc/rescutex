@@ -30,8 +30,6 @@ defmodule RescutexWeb.Router do
   scope "/", RescutexWeb do
     pipe_through [:browser]
 
-    delete "/users/log_out", UserSessionController, :delete
-
     live_session :current_user,
       on_mount: [{RescutexWeb.UserAuth, :mount_current_user}] do
       live "/users/confirm/:token", UserConfirmationLive, :edit
@@ -63,12 +61,18 @@ defmodule RescutexWeb.Router do
       live "/users/my_pets", UserLive.PetsLive, :index
 
       # Pets routes
-      live "/pets", PetLive.Index, :index
       live "/pets/new", PetLive.Index, :new
-      live "/pets/:id/edit", PetLive.Index, :edit
-      live "/pets/:id", PetLive.Show, :show
-      live "/pets/:id/show/edit", PetLive.Show, :edit
+      # live "/pets/:id/edit", PetLive.Index, :edit
+      # live "/pets/:id/show/edit", PetLive.Show, :edit
     end
+  end
+
+  scope "/", RescutexWeb do
+    pipe_through [:browser]
+
+    live "/pets", PetLive.Index, :index
+    live "/pets/:id", PetLive.Show, :show
+    delete "/users/log_out", UserSessionController, :delete
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
