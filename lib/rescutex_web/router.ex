@@ -64,15 +64,10 @@ defmodule RescutexWeb.Router do
       live "/pets/new", PetLive.Index, :new
       # live "/pets/:id/edit", PetLive.Index, :edit
       # live "/pets/:id/show/edit", PetLive.Show, :edit
+      live "/pets", PetLive.Index, :index
+      live "/pets/:id", PetLive.Show, :show
+      delete "/users/log_out", UserSessionController, :delete
     end
-  end
-
-  scope "/", RescutexWeb do
-    pipe_through [:browser]
-
-    live "/pets", PetLive.Index, :index
-    live "/pets/:id", PetLive.Show, :show
-    delete "/users/log_out", UserSessionController, :delete
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

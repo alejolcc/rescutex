@@ -11,7 +11,7 @@
 # and so on) as they will fail if something goes wrong.
 
 alias Rescutex.Accounts
-alias Rescutex.Pets
+alias Rescutex.Pets.Pet
 
 age = fn -> Enum.random(1..10) end
 gender = fn -> Enum.random([:male, :female]) end
@@ -60,7 +60,7 @@ File.read!("priv/repo/seed.json") |> Jason.decode!()
 |> Enum.each(fn %{"embedding" => embedding, "picture" => picture} ->
   {lat, long} = point.()
 
-  pet_attrs = %{
+  %Pet{
     user_id: user.id,
     age: age.(),
     details: "This is a pet",

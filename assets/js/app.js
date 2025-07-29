@@ -26,52 +26,51 @@ let Hooks = {}
 
 Hooks.Maps = {
   mounted() {
-    let geocoder
-    let marker
-    let map
-    this.el.initMap = this.initMap()
+    this.initMap()
   },
 
   async initMap() {
     console.log("initMap")
     const position = { lat: -32.9559518, lng: -60.660833 };
     const { Map } = await google.maps.importLibrary("maps");
+    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 
     // The map, centered at Uluru
-    map = new Map(document.getElementById("map"), {
+    this.map = new Map(document.getElementById("map"), {
       zoom: 12,
       center: position,
       mapId: "DEMO_MAP_ID",
     });
 
-    geocoder = new google.maps.Geocoder();
-    marker = new google.maps.Marker({ map, });
+    this.geocoder = new google.maps.Geocoder();
+    this.marker = new AdvancedMarkerElement({});
 
-    google.maps.event.trigger(map, "resize");
+    google.maps.event.trigger(this.map, "resize");
 
-    map.addListener("click", (e) => {
+    this.map.addListener("click", (e) => {
       this.geocode({ location: e.latLng });
     });
 
-    return map
+    return this.map
   },
 
   geocode(request) {
-    geocoder
+    this.geocoder
       .geocode(request)
       .then((result) => {
         const { results } = result;
+        const location = results[0].geometry.location;
 
-        map.setCenter(results[0].geometry.location);
-        marker.setPosition(results[0].geometry.location);
-        marker.setMap(map);
+        this.map.setCenter(location);
+        this.marker.position = location;
+        this.marker.map = this.map;
         let json = JSON.stringify(result, null, 2);
         console.log(results[0]);
         this.pushEventTo("#pet-form", "geocoding", { results: results[0] })
         return results;
       })
       .catch((e) => {
-        alert("Geocode was not successful for the following reason: " + e);
+        console.error("Geocode was not successful for the following reason: " + e);
       });
   }
 
@@ -95,4 +94,3 @@ liveSocket.connect()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
-
