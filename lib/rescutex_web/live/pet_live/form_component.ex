@@ -22,7 +22,7 @@ defmodule RescutexWeb.PetLive.FormComponent do
       >
         <%!-- TODO: create a map input component --%>
         <div class="w-96 h-96">
-          <div id="map" phx-update="ignore" phx-hook="Maps" class="w-full h-full"></div>
+          <div id="map" phx-update="ignore" phx-hook="Geolocation" class="w-full h-full"></div>
         </div>
         <.error :for={msg <- @map_error}>{msg}</.error>
 

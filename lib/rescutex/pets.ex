@@ -106,6 +106,14 @@ defmodule Rescutex.Pets do
   end
 
   @doc """
+  Gets all lost pets.
+  """
+  def get_lost_pets() do
+    from(p in Pet, where: p.post_type == :lost)
+    |> Repo.all()
+  end
+
+  @doc """
   Creates a pet.
   """
 

@@ -23,6 +23,7 @@ defmodule RescutexWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/map", MapLive, :index
   end
 
   ## Authentication routes

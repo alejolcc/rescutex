@@ -6,7 +6,7 @@ defmodule RescutexWeb.PetLiveTest do
   import Rescutex.AccountsFixtures
 
   @create_attrs %{}
-  @update_attrs %{}
+  # @update_attrs %{}
   @invalid_attrs %{}
 
   defp create_pet(_) do
@@ -59,25 +59,25 @@ defmodule RescutexWeb.PetLiveTest do
       assert html =~ "Pet created successfully"
     end
 
-    @tag :skip
-    test "updates pet in listing", %{conn: conn, pet: pet} do
-      {:ok, index_live, html} = live(conn, ~p"/pets/#{pet.id}/edit")
+    # @tag :skip
+    # test "updates pet in listing", %{conn: conn, pet: pet} do
+    #   {:ok, index_live, html} = live(conn, ~p"/pets/#{pet.id}/edit")
 
-      assert html =~ "Edit Pet"
+    #   assert html =~ "Edit Pet"
 
-      assert index_live
-             |> form("#pet-form", pet: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
+    #   assert index_live
+    #          |> form("#pet-form", pet: @invalid_attrs)
+    #          |> render_change() =~ "can&#39;t be blank"
 
-      assert index_live
-             |> form("#pet-form", pet: @update_attrs)
-             |> render_submit()
+    #   assert index_live
+    #          |> form("#pet-form", pet: @update_attrs)
+    #          |> render_submit()
 
-      assert_patch(index_live, ~p"/pets")
+    #   assert_patch(index_live, ~p"/pets")
 
-      html = render(index_live)
-      assert html =~ "Pet updated successfully"
-    end
+    #   html = render(index_live)
+    #   assert html =~ "Pet updated successfully"
+    # end
 
     # test "deletes pet in listing", %{conn: conn, pet: pet} do
     #   {:ok, index_live, _html} = live(conn, ~p"/pets")
@@ -100,24 +100,24 @@ defmodule RescutexWeb.PetLiveTest do
       assert html =~ "Show Pet"
     end
 
-    @tag :skip
-    test "updates pet within modal", %{conn: conn, pet: pet} do
-      {:ok, show_live, _html} = live(conn, ~p"/pets/#{pet}")
+    # @tag :skip
+    # test "updates pet within modal", %{conn: conn, pet: pet} do
+    #   {:ok, show_live, _html} = live(conn, ~p"/pets/#{pet}")
 
-      {:ok, pet_form_live} = show_live |> live(~p"/pets/#{pet.id}/show/edit")
+    #   {:ok, pet_form_live} = show_live |> live(~p"/pets/#{pet.id}/show/edit")
 
-      assert pet_form_live
-             |> form("#pet-form", pet: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
+    #   assert pet_form_live
+    #          |> form("#pet-form", pet: @invalid_attrs)
+    #          |> render_change() =~ "can&#39;t be blank"
 
-      assert pet_form_live
-             |> form("#pet-form", pet: @update_attrs)
-             |> render_submit()
+    #   assert pet_form_live
+    #          |> form("#pet-form", pet: @update_attrs)
+    #          |> render_submit()
 
-      assert_patch(pet_form_live, ~p"/pets/#{pet}")
+    #   assert_patch(pet_form_live, ~p"/pets/#{pet}")
 
-      html = render(show_live)
-      assert html =~ "Pet updated successfully"
-    end
+    #   html = render(show_live)
+    #   assert html =~ "Pet updated successfully"
+    # end
   end
 end

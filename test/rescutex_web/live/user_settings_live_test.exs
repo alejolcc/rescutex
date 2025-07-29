@@ -118,7 +118,6 @@ defmodule RescutexWeb.UserSettingsLiveTest do
       assert Accounts.get_user_by_email_and_password(user.email, new_password)
     end
 
-    @tag :wip
     test "renders errors with invalid data (phx-change)", %{conn: conn} do
       {:ok, lv, _html} = live(conn, ~p"/users/settings")
 
