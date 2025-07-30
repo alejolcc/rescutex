@@ -22,6 +22,11 @@
             My Pets
           </a>
         <% end %>
+        <%= if @current_user do %>
+          <a href={~p"/map"} class="inline-flex px-4 py-2 font-semibold text-gray-800 rounded-t">
+            Map
+          </a>
+        <% end %>
       </div>
       <%= if @current_user do %>
         <div class="px-6 flex flex-wrap items-center justify-between">

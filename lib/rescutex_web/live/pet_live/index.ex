@@ -23,6 +23,7 @@ defmodule RescutexWeb.PetLive.Index do
   def render(assigns) do
     ~H"""
     <div>
+      <%!-- TODO: Move this to root.html --%>
       <script
         src={"https://maps.googleapis.com/maps/api/js?key=#{@api_key}&loading=async&libraries=maps,marker&v=beta"}
         defer

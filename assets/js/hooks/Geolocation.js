@@ -13,7 +13,7 @@ const Geolocation = {
         this.map = new Map(document.getElementById("map"), {
             zoom: 12,
             center: position,
-            mapId: "DEMO_MAP_ID",
+            mapId: "GEOLOCATION_MAP_ID",
         });
 
         this.geocoder = new google.maps.Geocoder();

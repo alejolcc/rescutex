@@ -35,10 +35,12 @@ end
 race = fn -> Enum.random(["Chiwawa", "Beagle", "Terrier", "Silvestre"]) end
 
 point = fn ->
-  lat = :rand.uniform() * -1 + -32
-  long = :rand.uniform() * -1 + -60
+  lat = :rand.uniform() * -0.1 + -32.9
+  long = :rand.uniform() * -0.1 + -60.6
   {lat, long}
 end
+
+post_type = fn -> Enum.random([:lost]) end
 
 # pictures = fn ->
 #   :code.priv_dir(:rescutex) |> Path.join("static") |> Path.join("uploads") |> File.ls!()
@@ -48,8 +50,8 @@ IO.puts("Creating user...")
 
 {:ok, user} =
   Accounts.register_user(%{
-    "email" => "user@example.com",
-    "password" => "supersecret"
+    "email" => "example@example.com",
+    "password" => "123456789"
   })
 
 IO.puts("User created: user@example.com")
@@ -70,6 +72,7 @@ File.read!("priv/repo/seed.json") |> Jason.decode!()
     location: %Geo.Point{coordinates: {long, lat}, srid: 4326, properties: {}},
     pictures: [picture],
     embedding: embedding,
+    post_type: post_type.(),
     race: race.()
   }
   |> Rescutex.Repo.insert!()
