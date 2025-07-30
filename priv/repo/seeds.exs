@@ -58,7 +58,8 @@ IO.puts("User created: user@example.com")
 
 IO.puts("Seeding pets...")
 
-File.read!("priv/repo/seed.json") |> Jason.decode!()
+File.read!("priv/repo/seed.json")
+|> Jason.decode!()
 |> Enum.each(fn %{"embedding" => embedding, "picture" => picture} ->
   {lat, long} = point.()
 

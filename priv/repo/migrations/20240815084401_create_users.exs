@@ -29,5 +29,4 @@ defmodule Rescutex.Repo.Migrations.CreateUsers do
     create index(:users_tokens, [:user_id])
     create unique_index(:users_tokens, [:context, :token])
   end
-
 end

@@ -14,7 +14,7 @@ defmodule Rescutex.Jobs.SimilarPetJob do
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"pet_id" => pet_id}}) do
     with %Pet{} = pet <- Pets.get_pet!(pet_id) do
-          Pets.get_similar_pets_within_distance(pet, @threshold)
+      Pets.get_similar_pets_within_distance(pet, @threshold)
       Logger.info("Embedding calculated for pet #{pet.id}")
     end
   end

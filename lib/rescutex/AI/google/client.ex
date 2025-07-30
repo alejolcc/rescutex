@@ -116,7 +116,12 @@ defmodule Rescutex.AI.Google.Client do
       contents: %{
         role: "USER",
         parts: [
-          %{inline_data: %{mime_type: "image/jpg", data:  File.read!(file_path) |> :base64.encode()}},
+          %{
+            inline_data: %{
+              mime_type: "image/jpg",
+              data: File.read!(file_path) |> :base64.encode()
+            }
+          },
           %{text: prompt}
         ]
       },

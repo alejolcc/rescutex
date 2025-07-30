@@ -4,7 +4,7 @@ defmodule Rescutex.PetsTest do
   alias Rescutex.Pets
   alias Rescutex.Pets.Pet
   import Rescutex.PetsFixtures
-  alias  Rescutex.AccountsFixtures
+  alias Rescutex.AccountsFixtures
 
   setup do
     user = AccountsFixtures.user_fixture()

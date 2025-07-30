@@ -96,7 +96,6 @@ defmodule RescutexWeb.PetLiveTest do
         |> log_in_user(user_fixture())
         |> live(~p"/pets/#{pet}")
 
-
       assert html =~ "Show Pet"
     end
 

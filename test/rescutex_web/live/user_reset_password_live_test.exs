@@ -39,9 +39,7 @@ defmodule RescutexWeb.UserResetPasswordLiveTest do
       result =
         lv
         |> element("#reset_password_form")
-        |> render_change(
-          user: %{"password" => "set12", "password_confirmation" => "short"}
-        )
+        |> render_change(user: %{"password" => "set12", "password_confirmation" => "short"})
 
       assert result =~ "should be at least 8 character"
       assert result =~ "does not match password"

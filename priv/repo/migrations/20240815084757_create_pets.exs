@@ -25,6 +25,7 @@ defmodule Rescutex.Repo.Migrations.CreatePets do
     create index(:pets, [:gender])
 
     # Create the vector index (important for performance)
-    execute("CREATE INDEX ON pets USING hnsw (embedding vector_l2_ops);") # hnsw is good for similarity search
+    # hnsw is good for similarity search
+    execute("CREATE INDEX ON pets USING hnsw (embedding vector_l2_ops);")
   end
 end

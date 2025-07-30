@@ -76,7 +76,11 @@ defmodule RescutexWeb.CustomComponents do
     ~H"""
     <div class="m-4 shadow-md hover:shadow-lg hover:bg-gray-100 rounded-lg bg-white">
       <!-- Card Image -->
-      <img src="/images/perro.png" alt="" class="object-cover w-96 h-96 overflow-hidden  object-scale-down"  />
+      <img
+        src="/images/perro.png"
+        alt=""
+        class="object-cover w-96 h-96 overflow-hidden  object-scale-down"
+      />
       <!-- Card Content -->
       <div class="p-4">
         <h3 class="font-medium text-gray-600 text-lg my-2 uppercase">ADD PET</h3>

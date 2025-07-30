@@ -7,17 +7,18 @@ defmodule Rescutex.Application do
 
   @impl true
   def start(_type, _args) do
-    children = [
-      RescutexWeb.Telemetry,
-      Rescutex.Repo,
-      {Oban, Application.fetch_env!(:rescutex, Oban)},
-      {DNSCluster, query: Application.get_env(:rescutex, :dns_cluster_query) || :ignore},
-      {Phoenix.PubSub, name: Rescutex.PubSub},
-      {Finch, name: Rescutex.Finch},
-      # Rescutex.AI.Worker,
-      RescutexWeb.Endpoint
-    ]++
-    children(config_env())
+    children =
+      [
+        RescutexWeb.Telemetry,
+        Rescutex.Repo,
+        {Oban, Application.fetch_env!(:rescutex, Oban)},
+        {DNSCluster, query: Application.get_env(:rescutex, :dns_cluster_query) || :ignore},
+        {Phoenix.PubSub, name: Rescutex.PubSub},
+        {Finch, name: Rescutex.Finch},
+        # Rescutex.AI.Worker,
+        RescutexWeb.Endpoint
+      ] ++
+        children(config_env())
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
