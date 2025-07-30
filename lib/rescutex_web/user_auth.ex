@@ -96,6 +96,10 @@ defmodule RescutexWeb.UserAuth do
     assign(conn, :current_user, user)
   end
 
+  def get_google_api_key(conn, _opts) do
+    assign(conn, :api_key, Application.get_env(:rescutex, :google_api_key))
+  end
+
   defp ensure_user_token(conn) do
     if token = get_session(conn, :user_token) do
       {token, conn}

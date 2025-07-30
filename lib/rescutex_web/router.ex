@@ -13,6 +13,7 @@ defmodule RescutexWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug :fetch_current_user
+    plug :get_google_api_key
   end
 
   pipeline :api do

@@ -18,12 +18,6 @@ defmodule RescutexWeb.MapLive do
     ~H"""
     <div>
       <%!-- TODO: Move this to root.html --%>
-      <script
-        src={"https://maps.googleapis.com/maps/api/js?key=#{@api_key}&loading=async&libraries=maps,marker&v=beta"}
-        defer
-      >
-      </script>
-
       <div class="h-[80vh] w-full" phx-update="ignore" id="pets_map" phx-hook="PetsMap"></div>
     </div>
     """
