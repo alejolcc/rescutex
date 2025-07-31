@@ -1,0 +1,28 @@
+# fly.toml app configuration file generated for my-phoenix-db on 2025-07-31T11:29:19-03:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'my-phoenix-db'
+primary_region = 'eze'
+kill_signal = 'SIGTERM'
+
+[build]
+  dockerfile = 'Dockerfile'
+
+# The [processes] section explicitly defines the command to run.
+# This replaces the default command from the Docker image.
+[processes]
+  app = "sh -c 'mkdir -p /data/postgres && chown postgres:postgres /data/postgres && exec docker-entrypoint.sh postgres'"
+
+[env]
+  PGDATA = "/data/postgres"
+
+[mounts]
+  source = "pg_data"
+  destination = "/data"
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
