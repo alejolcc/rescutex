@@ -16,6 +16,8 @@ kill_signal = 'SIGTERM'
   app = "sh -c 'mkdir -p /data/postgres && chown postgres:postgres /data/postgres && exec docker-entrypoint.sh postgres'"
 
 [env]
+  POSTGRES_DB = "rescute_db_prod"
+  POSTGRES_USER = "rescute"
   PGDATA = "/data/postgres"
 
 [mounts]

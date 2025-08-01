@@ -23,19 +23,16 @@ end
 config :rescutex, current_env: config_env()
 
 if config_env() == :prod do
-  database_url =
-    System.get_env("DATABASE_URL") ||
-      raise """
-      environment variable DATABASE_URL is missing.
-      For example: ecto://USER:PASS@HOST/DATABASE
-      """
-
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
   config :rescutex, Rescutex.Repo,
     # ssl: true,
-    url: database_url,
-    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+    username: System.get_env("DB_USER"),
+    password: System.get_env("DB_PASSWORD"),
+    database: System.get_env("DB_NAME"),
+    hostname: System.get_env("DB_HOST"),
+    port: String.to_integer(System.get_env("DB_PORT") || "5432"),
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "50"),
     socket_options: maybe_ipv6
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
@@ -67,6 +64,12 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  google_Storage_credentials =
+    "RESCUTEX_CREDS"
+    |> System.get_env("")
+    |> :base64.decode()
+
+  config :goth, json: google_Storage_credentials
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key

@@ -2,8 +2,8 @@ defmodule Rescutex.Repo.Migrations.CreatePets do
   use Ecto.Migration
 
   def change do
-    execute("CREATE EXTENSION vector;")
-    execute("CREATE EXTENSION postgis;")
+    execute("CREATE EXTENSION IF NOT EXISTS vector;")
+    execute("CREATE EXTENSION IF NOT EXISTS postgis;")
 
     create table(:pets) do
       add :age, :integer
@@ -12,8 +12,7 @@ defmodule Rescutex.Repo.Migrations.CreatePets do
       add :kind, :string
       add :post_type, :string
       add :name, :string
-      add :lat, :float
-      add :long, :float
+      add :location, :geometry
       add :pictures, {:array, :string}, null: false, default: []
       add :race, :string
       add :embedding, :vector, size: 1408
@@ -23,6 +22,7 @@ defmodule Rescutex.Repo.Migrations.CreatePets do
 
     create index(:pets, [:kind])
     create index(:pets, [:gender])
+    create index(:pets, [:location], using: :gist)
 
     # Create the vector index (important for performance)
     # hnsw is good for similarity search
