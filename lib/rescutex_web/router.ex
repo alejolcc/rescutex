@@ -72,6 +72,13 @@ defmodule RescutexWeb.Router do
     end
   end
 
+  scope "/auth", RescutexWeb do
+    pipe_through :browser
+
+    get "/:provider", AuthController, :request
+    get "/:provider/callback", AuthController, :callback
+  end
+
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:rescutex, :dev_routes) do
     # If you want to use the LiveDashboard in production, you should put

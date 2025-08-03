@@ -2,13 +2,19 @@ defmodule Rescutex.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t() :: %__MODULE__{}
+  @derive {Jason.Encoder, except: [:__struct__]}
+
   schema "users" do
     field :email, :string
-    field :phone1, :string
+    field :first_name, :string
+    field :last_name, :string
+    field :phone, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
+    field :is_oauth_user, :boolean, default: false
 
     has_many :pets, Rescutex.Pets.Pet
 
@@ -44,6 +50,14 @@ defmodule Rescutex.Accounts.User do
     |> validate_email(opts)
     |> validate_password(opts)
   end
+
+  def oauth_registration_changeset(user, attrs, opts \\ []) do
+    user
+    |> cast(attrs, [:email, :first_name, :last_name])
+    |> validate_email(opts)
+    |> put_change(:is_oauth_user, true)
+  end
+
 
   defp validate_email(changeset, opts) do
     changeset

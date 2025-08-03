@@ -6,10 +6,12 @@ defmodule Rescutex.Repo.Migrations.CreateUsers do
 
     create table(:users) do
       add :name, :string
-      add :phone1, :string
-      add :phone2, :string
+      add :first_name, :string
+      add :last_name, :string
+      add :phone, :string
       add :email, :citext, null: false
-      add :hashed_password, :string, null: false
+      add :hashed_password, :string
+      add :is_oauth_user, :boolean
       add :confirmed_at, :utc_datetime
 
       timestamps(type: :utc_datetime)

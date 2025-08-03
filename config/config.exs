@@ -7,6 +7,17 @@
 # General application configuration
 import Config
 
+config :ueberauth, Ueberauth,
+  providers: [
+    # Define the google provider
+    google: {Ueberauth.Strategy.Google, [default_scope: "email profile"]}
+  ]
+
+# Configure the Google provider with your credentials
+config :ueberauth, Ueberauth.Strategy.Google.OAuth,
+  client_id: System.get_env("RESCUTEX_OAUTH_CLIENT_ID"),
+  client_secret: System.get_env("RESCUTEX_OAUTH_CLIENT_SECRET")
+
 config :rescutex,
   ecto_repos: [Rescutex.Repo],
   generators: [timestamp_type: :utc_datetime]

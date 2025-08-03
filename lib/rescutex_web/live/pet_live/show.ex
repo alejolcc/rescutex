@@ -134,7 +134,7 @@ defmodule RescutexWeb.PetLive.Show do
                           </path>
                         </svg>
                       </div>
-                      <div class="px-4 py-2">{@user.phone1}</div>
+                      <div class="px-4 py-2">{@user.phone}</div>
                     </div>
                   </div>
                   <!-- 2nd col -->

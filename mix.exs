@@ -67,7 +67,9 @@ defmodule Rescutex.MixProject do
       {:bandit, "~> 1.5"},
       {:oban, "~> 2.19"},
       {:oban_web, "~> 2.10"},
-      {:geo_postgis, "~> 3.7"}
+      {:geo_postgis, "~> 3.7"},
+      {:ueberauth, "~> 0.10"},
+      {:ueberauth_google, "~> 0.10"}
     ]
   end
 

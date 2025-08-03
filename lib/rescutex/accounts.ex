@@ -80,6 +80,13 @@ defmodule Rescutex.Accounts do
     |> Repo.insert()
   end
 
+  def register_oauth_user(attrs) do
+    %User{}
+    |> User.oauth_registration_changeset(attrs)
+    |> Repo.insert()
+  end
+
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking user changes.
 

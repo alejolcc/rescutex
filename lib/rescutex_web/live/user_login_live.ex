@@ -31,6 +31,16 @@ defmodule RescutexWeb.UserLoginLive do
           </.button>
         </:actions>
       </.simple_form>
+
+      <.divider text="OR"></.divider>
+
+      <div class="flex items-center justify-center">
+        <.link href={~p"/auth/google"}>
+          <div class="flex items-center justify-center">
+            <img src={~p"/images/signup_google.png"} alt="Icono" class="h-12" />
+          </div>
+        </.link>
+      </div>
     </div>
     """
   end

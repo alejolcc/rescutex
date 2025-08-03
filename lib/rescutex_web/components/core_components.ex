@@ -19,6 +19,19 @@ defmodule RescutexWeb.CoreComponents do
   alias Phoenix.LiveView.JS
   use Gettext, backend: RescutexWeb.Gettext
 
+  attr :text, :string, default: nil
+  slot :inner_block
+
+  def divider(assigns) do
+    ~H"""
+    <div class="relative flex py-5 items-center">
+      <div class="flex-grow border-t border-gray-400"></div>
+      <span :if={@text} class="flex-shrink mx-4 text-gray-400">{@text}</span>
+      <div class="flex-grow border-t border-gray-400"></div>
+    </div>
+    """
+  end
+
   @doc """
   Renders a modal.
 
