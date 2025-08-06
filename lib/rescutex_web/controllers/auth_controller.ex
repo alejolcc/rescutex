@@ -6,9 +6,7 @@ defmodule RescutexWeb.AuthController do
 
   alias Rescutex.Accounts
   alias RescutexWeb.UserAuth
-
-  def callback(%{assigns: %{ueberauth_failure: %{provider: :google, errors: errors}} = failure} = conn, _params) do
-    IO.inspect failure
+  def callback(%{assigns: %{ueberauth_failure: %{provider: :google, errors: errors}}} = conn, _params) do
     Logger.error("Failed to authenticate: #{inspect(errors)}")
     conn
     |> put_flash(:error, "Failed to authenticate")

@@ -22,6 +22,9 @@ end
 
 config :rescutex, current_env: config_env()
 
+config :rescutex,
+  google_api_key: System.get_env("MAPS_API_KEY")
+
 if config_env() == :prod do
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
@@ -32,8 +35,10 @@ if config_env() == :prod do
     database: System.get_env("DB_NAME"),
     hostname: System.get_env("DB_HOST"),
     port: String.to_integer(System.get_env("DB_PORT") || "5432"),
-    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "50"),
-    socket_options: maybe_ipv6
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "15"),
+    socket_options: maybe_ipv6,
+    types: Rescutex.PostgrexTypes
+
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
@@ -70,6 +75,12 @@ if config_env() == :prod do
     |> :base64.decode()
 
   config :goth, json: google_Storage_credentials
+
+  # Configure the Google provider with your credentials
+  config :ueberauth, Ueberauth.Strategy.Google.OAuth,
+    client_id: System.get_env("RESCUTEX_OAUTH_CLIENT_ID"),
+    client_secret: System.get_env("RESCUTEX_OAUTH_CLIENT_SECRET")
+
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key
