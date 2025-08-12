@@ -69,7 +69,10 @@ defmodule Rescutex.MixProject do
       {:oban_web, "~> 2.10"},
       {:geo_postgis, "~> 3.7"},
       {:ueberauth, "~> 0.10"},
-      {:ueberauth_google, "~> 0.10"}
+      {:ueberauth_google, "~> 0.10"},
+      {:sweet_xml, "~> 0.6", only: :dev},
+      {:ex_aws, "~> 2.0"},
+      {:ex_aws_s3, "~> 2.0"}
     ]
   end
 

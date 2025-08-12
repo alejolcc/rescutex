@@ -39,7 +39,6 @@ if config_env() == :prod do
     socket_options: maybe_ipv6,
     types: Rescutex.PostgrexTypes
 
-
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
   # want to use a different value for prod and you most likely don't want
@@ -80,6 +79,21 @@ if config_env() == :prod do
   config :ueberauth, Ueberauth.Strategy.Google.OAuth,
     client_id: System.get_env("RESCUTEX_OAUTH_CLIENT_ID"),
     client_secret: System.get_env("RESCUTEX_OAUTH_CLIENT_SECRET")
+
+  config :ex_aws,
+    debug_requests: true,
+    json_codec: Jason,
+    http_client: Rescutex.CloudStorage.ExAwsHttpClient,
+    access_key_id: {:system, "AWS_ACCESS_KEY_ID"},
+    secret_access_key: {:system, "AWS_SECRET_ACCESS_KEY"}
+
+  config :ex_aws, :s3,
+    host: {:system, "AWS_ENDPOINT_URL_S3"},
+    region: "auto"
+
+  config :rescutex, Rescutex.CloudStorage,
+    storage_adapter: Rescutex.CloudStorage.Adapters.S3,
+    bucket: "rescutex-images"
 
   # ## SSL Support
   #

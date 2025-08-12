@@ -1,5 +1,20 @@
 import Config
 
+config :ex_aws,
+  debug_requests: true,
+  json_codec: Jason,
+  http_client: Rescutex.CloudStorage.ExAwsHttpClient,
+  access_key_id: {:system, "AWS_ACCESS_KEY_ID"},
+  secret_access_key: {:system, "AWS_SECRET_ACCESS_KEY"}
+
+config :ex_aws, :s3,
+  host: {:system, "AWS_ENDPOINT_URL_S3"},
+  region: "auto"
+
+config :rescutex, Rescutex.CloudStorage,
+  storage_adapter: Rescutex.CloudStorage.Adapters.LocalStorage,
+  bucket: "rescutex-images"
+
 google_Storage_credentials =
   "RESCUTEX_CREDS"
   |> System.get_env("")

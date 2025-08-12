@@ -43,16 +43,16 @@ defmodule RescutexWeb.CustomComponents do
   end
 
   def pet_card(assigns) do
-    src = assigns.src |> List.first()
+    image_url = assigns.src |> build_image_url()
 
     assigns =
       assigns
-      |> assign(:src, src)
+      |> assign(:src, image_url)
 
     ~H"""
     <div class="m-4 shadow-md hover:shadow-lg hover:bg-gray-100 rounded-lg bg-white">
       <!-- Card Image -->
-      <img src={"/uploads/#{@src}"} alt="" class="object-cover w-96 h-96 overflow-hidden" />
+      <img src={"#{@src}"} alt="" class="object-cover w-96 h-96 overflow-hidden" />
       <!-- Card Content -->
       <div class="p-4">
         <h3 class="font-medium text-gray-600 text-lg my-2 uppercase">{@name} {@id}</h3>
@@ -231,4 +231,16 @@ defmodule RescutexWeb.CustomComponents do
     </div>
     """
   end
+
+  # TODO: We need to handle multiples images
+  defp build_image_url([src | _]) do
+    # This is not a good practice
+    impl_source = Application.get_env(:rescutex,Rescutex.CloudStorage)[:storage_adapter]
+
+    case impl_source do
+      Rescutex.CloudStorage.Adapters.S3 -> "http://rescutex-images.t3.storageapi.dev/#{src}"
+      _ -> "/uploads/#{src}"
+    end
+  end
+
 end

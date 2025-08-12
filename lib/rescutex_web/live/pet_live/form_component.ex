@@ -2,6 +2,7 @@ defmodule RescutexWeb.PetLive.FormComponent do
   use RescutexWeb, :live_component
 
   alias Rescutex.Pets
+  alias Rescutex.CloudStorage
   import RescutexWeb.CustomComponents
 
   @impl true
@@ -168,10 +169,13 @@ defmodule RescutexWeb.PetLive.FormComponent do
   defp handle_upload(socket) do
     uploaded_files =
       consume_uploaded_entries(socket, :avatar, fn %{path: path}, _entry ->
-        dest = Path.join([:code.priv_dir(:rescutex), "static", "uploads", Path.basename(path)])
-        # dest = Path.join(["/tmp/pictures/", Path.basename(path)])
+        # First we copy the img to /tmp file to do some preprocesing before calculate the embedding
+        dest = Path.join(["/tmp/pictures/", Path.basename(path)])
         File.cp!(path, dest)
-        {:postpone, Path.basename(path)}
+
+        # After that we upload the original photo to the cloud
+        CloudStorage.upload(path, "#{Path.basename(path)}.png")
+        {:postpone, "#{Path.basename(path)}.png"}
       end)
 
     update(socket, :uploaded_files, fn _ -> uploaded_files end)
