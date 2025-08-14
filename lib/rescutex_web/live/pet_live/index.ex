@@ -30,13 +30,17 @@ defmodule RescutexWeb.PetLive.Index do
       >
       </script>
 
-      <.tab_list id="index-search-tabs" selected={@tab_index}>
-        <:tab id="all_pets" title="All Pets"></:tab>
-        <:tab id="lost" title="Lost"></:tab>
-        <:tab id="found" title="Found"></:tab>
-        <:tab id="adoption" title="Adoption"></:tab>
-        <:tab id="transit" title="Transit"></:tab>
-      </.tab_list>
+      <div class="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+        <div class="inline-block min-w-full">
+          <.tab_list id="index-search-tabs" selected={@tab_index}>
+            <:tab id="all_pets" title="All Pets"></:tab>
+            <:tab id="lost" title="Lost"></:tab>
+            <:tab id="found" title="Found"></:tab>
+            <:tab id="adoption" title="Adoption"></:tab>
+            <:tab id="transit" title="Transit"></:tab>
+          </.tab_list>
+        </div>
+      </div>
 
       <div class="relative items-center justify-center">
         <div class="grid lg:grid-cols-4 gap-4 sm:grid-cols-1">

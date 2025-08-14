@@ -23,12 +23,14 @@ import { LiveSocket } from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import Geolocation from "./hooks/Geolocation.js"
 import PetsMap from "./hooks/PetsMap.js"
+import MobileMenu from "./hooks/MobileMenu.js"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
   hooks: {
     Geolocation,
-    PetsMap
+    PetsMap,
+    MobileMenu
   }, longPollFallbackMs: 2500, params: { _csrf_token: csrfToken }
 })
 

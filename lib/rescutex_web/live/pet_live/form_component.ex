@@ -8,7 +8,7 @@ defmodule RescutexWeb.PetLive.FormComponent do
   @impl true
   def render(assigns) do
     ~H"""
-    <div>
+    <div class="max-w-lg mx-auto">
       <.header>
         {@title}
         <:subtitle>Use this form to manage pet records in your database.</:subtitle>
@@ -22,7 +22,7 @@ defmodule RescutexWeb.PetLive.FormComponent do
         phx-submit="save"
       >
         <%!-- TODO: create a map input component --%>
-        <div class="w-96 h-96">
+        <div class="w-full h-96">
           <div id="map" phx-update="ignore" phx-hook="Geolocation" class="w-full h-full"></div>
         </div>
         <.error :for={msg <- @map_error}>{msg}</.error>
@@ -170,7 +170,7 @@ defmodule RescutexWeb.PetLive.FormComponent do
     uploaded_files =
       consume_uploaded_entries(socket, :avatar, fn %{path: path}, _entry ->
         # First we copy the img to /tmp file to do some preprocesing before calculate the embedding
-        dest = Path.join(["/tmp/pictures/", Path.basename(path)])
+        dest = Path.join(["/tmp", Path.basename(path)])
         File.cp!(path, dest)
 
         # After that we upload the original photo to the cloud

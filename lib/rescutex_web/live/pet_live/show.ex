@@ -26,8 +26,8 @@ defmodule RescutexWeb.PetLive.Show do
           <!-- Left Side -->
           <div class="w-full md:w-3/12 md:mx-2">
             <!-- Profile Card -->
-            <div class="image overflow-hidden">
-              <img class="h-auto w-full mx-auto" src={"/uploads/#{@pet.pictures}"} alt="" />
+            <div class="image overflow-hidden max-w-sm mx-auto">
+              <img class="h-auto w-full mx-auto" src={"#{build_image_url(@pet.pictures)}"} alt="" />
             </div>
             <!-- End of profile card -->
             <div class="my-4"></div>
@@ -52,7 +52,7 @@ defmodule RescutexWeb.PetLive.Show do
                 </span>
                 <span>Similar Pets</span>
               </div>
-              <div class="grid grid-cols-3">
+              <div class="grid sm:grid-cols-2 md:grid-cols-3">
                 <div :for={similar_pet <- get_similars(@pet, 6)}>
                   <.link navigate={~p"/pets/#{similar_pet.id}"}>
                     <.rounded_img_with_name
@@ -100,10 +100,10 @@ defmodule RescutexWeb.PetLive.Show do
                           xmlns="http://www.w3.org/2000/svg"
                           x="0px"
                           y="0px"
-                          width="30"
-                          height="30"
+                          width="24"
+                          height="24"
                           viewBox="0 0 48 48"
-                          class="ml-1"
+                          class="ml-1 w-6 h-6"
                         >
                           <path
                             fill="#fff"
@@ -204,5 +204,16 @@ defmodule RescutexWeb.PetLive.Show do
 
   defp get_similars(pet, n) do
     Pets.get_similar_pets(pet, limit: n)
+  end
+
+  # TODO: We need to handle multiples images
+  defp build_image_url([src | _]) do
+    # This is not a good practice
+    impl_source = Application.get_env(:rescutex,Rescutex.CloudStorage)[:storage_adapter]
+
+    case impl_source do
+      Rescutex.CloudStorage.Adapters.S3 -> "http://rescutex-images.t3.storageapi.dev/#{src}"
+      _ -> "/uploads/#{src}"
+    end
   end
 end
