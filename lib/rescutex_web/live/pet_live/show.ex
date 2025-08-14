@@ -66,7 +66,7 @@ defmodule RescutexWeb.PetLive.Show do
             <!-- End of friends card -->
           </div>
           <!-- Right Side -->
-          <div class="w-full md:w-9/12 mx-2 flex flex-col">
+          <div class="w-full md:w-9/12 md:mx-2 flex flex-col">
             <!-- About Section -->
             <div class="bg-white p-3 shadow-sm rounded-sm">
               <div class="text-gray-700">
@@ -209,7 +209,7 @@ defmodule RescutexWeb.PetLive.Show do
   # TODO: We need to handle multiples images
   defp build_image_url([src | _]) do
     # This is not a good practice
-    impl_source = Application.get_env(:rescutex,Rescutex.CloudStorage)[:storage_adapter]
+    impl_source = Application.get_env(:rescutex, Rescutex.CloudStorage)[:storage_adapter]
 
     case impl_source do
       Rescutex.CloudStorage.Adapters.S3 -> "http://rescutex-images.t3.storageapi.dev/#{src}"

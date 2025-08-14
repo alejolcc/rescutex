@@ -107,12 +107,11 @@ defmodule RescutexWeb.CustomComponents do
         :map_url,
         "https://www.google.com/maps/embed/v1/place?key=#{assigns.api_key}&q=#{assigns.latitud},#{assigns.longitud}&zoom=13"
       )
-      |> assign(:width, assigns.width)
       |> assign(:height, assigns.height)
 
     ~H"""
     <iframe
-      width={@width}
+      width="100%"
       height={@height}
       style="border:0"
       loading="lazy"
@@ -235,12 +234,11 @@ defmodule RescutexWeb.CustomComponents do
   # TODO: We need to handle multiples images
   defp build_image_url([src | _]) do
     # This is not a good practice
-    impl_source = Application.get_env(:rescutex,Rescutex.CloudStorage)[:storage_adapter]
+    impl_source = Application.get_env(:rescutex, Rescutex.CloudStorage)[:storage_adapter]
 
     case impl_source do
       Rescutex.CloudStorage.Adapters.S3 -> "http://rescutex-images.t3.storageapi.dev/#{src}"
       _ -> "/uploads/#{src}"
     end
   end
-
 end

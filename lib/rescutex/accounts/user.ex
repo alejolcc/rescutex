@@ -58,7 +58,6 @@ defmodule Rescutex.Accounts.User do
     |> put_change(:is_oauth_user, true)
   end
 
-
   defp validate_email(changeset, opts) do
     changeset
     |> validate_required([:email])

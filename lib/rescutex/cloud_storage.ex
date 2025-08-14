@@ -19,6 +19,6 @@ defmodule Rescutex.CloudStorage do
   end
 
   defp adapter do
-    Application.get_env(:rescutex,Rescutex.CloudStorage)[:storage_adapter]
+    Application.get_env(:rescutex, Rescutex.CloudStorage)[:storage_adapter]
   end
 end

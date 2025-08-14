@@ -22,16 +22,19 @@
     </script>
   </head>
   <header class="bg-white shadow-md">
-    <nav id="main-navbar" class="container mx-auto px-4 py-2 flex items-center justify-between" phx-hook="MobileMenu" >
+    <nav
+      id="main-navbar"
+      class="container mx-auto px-4 py-2 flex items-center justify-between"
+      phx-hook="MobileMenu"
+    >
       <!-- Left (rescute logo)-->
       <div>
         <a href="/pets">
           <img src={~p"/images/rescute_logo.png"} width="150" class="max-w-full" />
         </a>
       </div>
-
-
-      <!-- Right-->
+      
+<!-- Right-->
       <div>
         <!-- Mobile menu button -->
         <div class="lg:hidden">
@@ -51,7 +54,7 @@
           </button>
         </div>
         
-        <!-- Desktop and Mobile Menu -->
+<!-- Desktop and Mobile Menu -->
         <div class="hidden lg:flex flex-grow items-center justify-end relative" data-menu>
           <div class="flex flex-col lg:flex-row lg:items-center lg:gap-4 absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20 lg:static lg:mt-0 lg:w-auto lg:bg-transparent lg:shadow-none">
             <%= if @current_user do %>

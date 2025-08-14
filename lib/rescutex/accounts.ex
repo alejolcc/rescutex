@@ -86,7 +86,6 @@ defmodule Rescutex.Accounts do
     |> Repo.insert()
   end
 
-
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking user changes.
 

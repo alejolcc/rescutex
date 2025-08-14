@@ -19,7 +19,6 @@ defmodule Rescutex.CloudStorage.Adapters.LocalStorage do
     File.write(Path.join(@dest, name), binary)
   end
 
-
   @doc """
   Downloads an object from the local storage.
   """

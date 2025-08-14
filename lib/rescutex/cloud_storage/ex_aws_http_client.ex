@@ -1,4 +1,3 @@
-
 defmodule Rescutex.CloudStorage.ExAwsHttpClient do
   @behaviour ExAws.Request.HttpClient
 
