@@ -22,62 +22,79 @@
     </script>
   </head>
   <header class="bg-white shadow-md">
-    <nav id="main-navbar" class="container mx-auto px-4 py-2 flex items-center justify-between" phx-hook="MobileMenu">
-      <div class="flex items-center gap-4">
+    <nav id="main-navbar" class="container mx-auto px-4 py-2 flex items-center justify-between" phx-hook="MobileMenu" >
+      <!-- Left (rescute logo)-->
+      <div>
         <a href="/pets">
           <img src={~p"/images/rescute_logo.png"} width="150" class="max-w-full" />
         </a>
       </div>
 
-      <!-- Mobile menu button -->
-      <div class="lg:hidden">
-        <button type="button" class="block text-gray-500 hover:text-gray-700 focus:text-gray-700 focus:outline-none" data-menu-button>
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-      </div>
 
-      <!-- Desktop and Mobile Menu -->
-      <div class="hidden lg:flex flex-grow items-center justify-end" data-menu>
-        <div class="flex flex-col lg:flex-row lg:items-center lg:gap-4 mt-4 lg:mt-0">
-          <%= if @current_user do %>
-            <a
-              href={~p"/users/my_pets"}
-              class="block px-4 py-2 font-semibold text-gray-800 rounded-t hover:bg-gray-100"
-            >
-              My Pets
-            </a>
-            <a href={~p"/map"} class="block px-4 py-2 font-semibold text-gray-800 rounded-t hover:bg-gray-100">
-              Map
-            </a>
-            <.link
-              href={~p"/users/settings"}
-              class="block px-4 py-2 font-semibold text-blue-600 rounded-t hover:bg-gray-100"
-            >
-              {@current_user.email}
-            </.link>
-            <.link
-              href={~p"/users/log_out"}
-              method="delete"
-              class="block px-4 py-2 font-semibold bg-blue-600 text-white rounded-t hover:bg-blue-700"
-            >
-              Log Out
-            </.link>
-          <% else %>
-            <.link
-              href={~p"/users/log_in"}
-              class="block px-4 py-2 font-semibold text-blue-600 rounded-t hover:bg-gray-100"
-            >
-              Log in
-            </.link>
-            <.link
-              href={~p"/users/register"}
-              class="block px-4 py-2 font-semibold bg-blue-600 text-white rounded-t hover:bg-blue-700"
-            >
-              Start helping
-            </.link>
-          <% end %>
+      <!-- Right-->
+      <div>
+        <!-- Mobile menu button -->
+        <div class="lg:hidden">
+          <button
+            type="button"
+            class="block text-gray-500 hover:text-gray-700 focus:text-gray-700 focus:outline-none"
+            data-menu-button
+          >
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Desktop and Mobile Menu -->
+        <div class="hidden lg:flex flex-grow items-center justify-end relative" data-menu>
+          <div class="flex flex-col lg:flex-row lg:items-center lg:gap-4 absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20 lg:static lg:mt-0 lg:w-auto lg:bg-transparent lg:shadow-none">
+            <%= if @current_user do %>
+              <a
+                href={~p"/users/my_pets"}
+                class="block px-4 py-2 font-semibold text-gray-800 rounded-t hover:bg-gray-100"
+              >
+                My Pets
+              </a>
+              <a
+                href={~p"/map"}
+                class="block px-4 py-2 font-semibold text-gray-800 rounded-t hover:bg-gray-100"
+              >
+                Map
+              </a>
+              <.link
+                href={~p"/users/settings"}
+                class="block px-4 py-2 font-semibold text-blue-600 rounded-t hover:bg-gray-100"
+              >
+                {@current_user.email}
+              </.link>
+              <.link
+                href={~p"/users/log_out"}
+                method="delete"
+                class="block px-4 py-2 font-semibold bg-blue-600 text-white rounded-t hover:bg-blue-700"
+              >
+                Log Out
+              </.link>
+            <% else %>
+              <.link
+                href={~p"/users/log_in"}
+                class="block px-4 py-2 font-semibold text-blue-600 rounded-t hover:bg-gray-100"
+              >
+                Log in
+              </.link>
+              <.link
+                href={~p"/users/register"}
+                class="block px-4 py-2 font-semibold bg-blue-600 text-white rounded-t hover:bg-blue-700"
+              >
+                Start helping
+              </.link>
+            <% end %>
+          </div>
         </div>
       </div>
     </nav>
