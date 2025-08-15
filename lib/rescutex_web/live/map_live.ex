@@ -25,11 +25,11 @@ defmodule RescutexWeb.MapLive do
 
   @impl true
   def handle_event("update-markers", _, socket) do
-    pets_locations = Pets.get_lost_pets() |> Enum.map(&get_locations/1)
+    pets_locations = Pets.list_pets() |> Enum.map(&get_locations/1)
     {:noreply, push_event(socket, "update-markers", %{pets: pets_locations})}
   end
 
-  defp get_locations(%Pet{location: %{coordinates: {long, lat}}}) do
-    %{long: long, lat: lat}
+  defp get_locations(%Pet{location: %{coordinates: {long, lat}}, post_type: post_type}) do
+    %{long: long, lat: lat, post_type: Atom.to_string(post_type)}
   end
 end
