@@ -17,9 +17,11 @@ defmodule Rescutex.AI do
     end
   end
 
+  # In case of improve speed needs, we can use only memory
+  # For now we write the file for debuggin purpouses
   def remove_background(%Pet{} = pet) do
     with {:ok, body} <- Rescutex.AI.Google.Client.remove_background(file_path(pet)) do
-      tmp_file = Path.join(["/tmp", Path.basename(pet.pictures) <> ".png"])
+      tmp_file = Path.join(["/tmp", Path.basename(pet.pictures)])
 
       img =
         body
@@ -39,6 +41,6 @@ defmodule Rescutex.AI do
   end
 
   defp file_path(pet) do
-    Path.join([:code.priv_dir(:rescutex), "static", "uploads", Path.basename(pet.pictures)])
+    Path.join(["/tmp", Path.basename(pet.pictures)])
   end
 end

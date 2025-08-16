@@ -170,7 +170,7 @@ defmodule RescutexWeb.PetLive.FormComponent do
     uploaded_files =
       consume_uploaded_entries(socket, :avatar, fn %{path: path}, _entry ->
         # First we copy the img to /tmp file to do some preprocesing before calculate the embedding
-        dest = Path.join(["/tmp", Path.basename(path)])
+        dest = Path.join(["/tmp", "#{Path.basename(path)}.png"])
         File.cp!(path, dest)
 
         # After that we upload the original photo to the cloud
