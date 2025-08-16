@@ -52,7 +52,13 @@ defmodule RescutexWeb.PetLive.Index do
           <div id="pets" phx-update="stream" class="contents">
             <div :for={{dom_id, pet} <- @streams.pets} id={dom_id}>
               <.link navigate={~p"/pets/#{pet.id}"}>
-                <.pet_card src={pet.pictures} name={pet.name} text={pet.details} id={pet.id} />
+                <.pet_card
+                  src={pet.pictures}
+                  name={pet.name}
+                  text={pet.details}
+                  id={pet.id}
+                  gender={pet.gender}
+                />
               </.link>
             </div>
           </div>

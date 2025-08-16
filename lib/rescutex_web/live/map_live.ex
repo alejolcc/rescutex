@@ -2,7 +2,6 @@ defmodule RescutexWeb.MapLive do
   use RescutexWeb, :live_view
 
   alias Rescutex.Pets
-  alias Rescutex.Pets.Pet
 
   @impl true
   def mount(_params, _session, socket) do
@@ -17,7 +16,6 @@ defmodule RescutexWeb.MapLive do
   def render(assigns) do
     ~H"""
     <div>
-      <%!-- TODO: Move this to root.html --%>
       <div class="h-[80vh] w-full" phx-update="ignore" id="pets_map" phx-hook="PetsMap"></div>
     </div>
     """
@@ -25,11 +23,36 @@ defmodule RescutexWeb.MapLive do
 
   @impl true
   def handle_event("update-markers", _, socket) do
-    pets_locations = Pets.list_pets() |> Enum.map(&get_locations/1)
+    pets_locations =
+      Pets.list_pets()
+      |> Enum.map(fn pet -> Map.take(pet, [:id, :location, :post_type, :pictures, :details]) end)
+      |> Enum.map(&get_data/1)
+
     {:noreply, push_event(socket, "update-markers", %{pets: pets_locations})}
   end
 
-  defp get_locations(%Pet{location: %{coordinates: {long, lat}}, post_type: post_type}) do
-    %{long: long, lat: lat, post_type: Atom.to_string(post_type)}
+  defp get_data(data) do
+    image_url = build_image_url(data.pictures)
+    %{location: %{coordinates: {long, lat}}} = data
+
+    %{
+      long: long,
+      lat: lat,
+      post_type: Atom.to_string(data.post_type),
+      id: data.id,
+      image_url: image_url,
+      details: data.details
+    }
+  end
+
+  # TODO: This function is spread in all the code
+  defp build_image_url([src | _]) do
+    # This is not a good practice
+    impl_source = Application.get_env(:rescutex, Rescutex.CloudStorage)[:storage_adapter]
+
+    case impl_source do
+      Rescutex.CloudStorage.Adapters.S3 -> "http://rescutex-images.t3.storageapi.dev/#{src}"
+      _ -> "/uploads/#{src}"
+    end
   end
 end

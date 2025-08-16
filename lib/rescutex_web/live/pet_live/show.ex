@@ -55,10 +55,7 @@ defmodule RescutexWeb.PetLive.Show do
               <div class="grid sm:grid-cols-2 md:grid-cols-3">
                 <div :for={similar_pet <- get_similars(@pet, 6)}>
                   <.link navigate={~p"/pets/#{similar_pet.id}"}>
-                    <.rounded_img_with_name
-                      name={similar_pet.name}
-                      src={"/uploads/#{similar_pet.pictures}"}
-                    />
+                    <.rounded_img_with_name name={similar_pet.name} src={"#{similar_pet.pictures}"} />
                   </.link>
                 </div>
               </div>

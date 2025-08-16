@@ -55,13 +55,15 @@ defmodule RescutexWeb.CustomComponents do
       <img src={"#{@src}"} alt="" class="object-cover w-96 h-96 overflow-hidden" />
       <!-- Card Content -->
       <div class="p-4">
-        <h3 class="font-medium text-gray-600 text-lg my-2 uppercase">{@name} {@id}</h3>
+        <h3 class="font-medium text-lg my-2 uppercase flex flex-row flex-nowrap items-center">
+          {@name} &nbsp; {pet_gender(@gender)}
+        </h3>
         <p class="text-justify">
           {@text}
         </p>
         <div class="mt-5">
           <a
-            href=""
+            href={"/pets/#{@id}"}
             class="hover:bg-gray-700 rounded-full py-2 px-3 font-semibold hover:text-white bg-gray-400 text-gray-100"
           >
             More Info
@@ -133,6 +135,12 @@ defmodule RescutexWeb.CustomComponents do
   end
 
   def rounded_img_with_name(assigns) do
+    image_url = assigns.src |> build_image_url()
+
+    assigns =
+      assigns
+      |> assign(:src, image_url)
+
     ~H"""
     <div class="text-center my-2">
       <img class="h-16 w-16 rounded-full mx-auto" src={@src} alt="" />
@@ -233,6 +241,10 @@ defmodule RescutexWeb.CustomComponents do
 
   # TODO: We need to handle multiples images
   defp build_image_url([src | _]) do
+    build_image_url(src)
+  end
+
+  defp build_image_url(src) do
     # This is not a good practice
     impl_source = Application.get_env(:rescutex, Rescutex.CloudStorage)[:storage_adapter]
 
@@ -240,5 +252,48 @@ defmodule RescutexWeb.CustomComponents do
       Rescutex.CloudStorage.Adapters.S3 -> "http://rescutex-images.t3.storageapi.dev/#{src}"
       _ -> "/uploads/#{src}"
     end
+  end
+
+  defp pet_gender(:male = assigns) do
+    ~H"""
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      fill="currentColor"
+      class="bi bi-gender-male text-blue-500 "
+      viewBox="0 0 16 16"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8"
+      />
+    </svg>
+    """
+  end
+
+  defp pet_gender(:female = assigns) do
+    ~H"""
+    <p>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        fill="currentColor"
+        class="bi bi-gender-female text-pink-500"
+        viewBox="0 0 16 16"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8M3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5"
+        />
+      </svg>
+    </p>
+    """
+  end
+
+  defp pet_gender(assigns) do
+    ~H"""
+    """
   end
 end

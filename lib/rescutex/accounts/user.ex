@@ -3,8 +3,8 @@ defmodule Rescutex.Accounts.User do
   import Ecto.Changeset
 
   @type t() :: %__MODULE__{}
-  @derive {Jason.Encoder, except: [:__struct__]}
 
+  @derive {Jason.Encoder, except: [:__struct__]}
   schema "users" do
     field :email, :string
     field :first_name, :string
