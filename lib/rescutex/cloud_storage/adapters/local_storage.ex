@@ -1,13 +1,13 @@
 defmodule Rescutex.CloudStorage.Adapters.LocalStorage do
   @behaviour Rescutex.CloudStorage.Adapters.AdapterBehaviour
 
-  @dest "/tmp/rescutex_storage"
+  @dest Path.join([:code.priv_dir(:rescutex), "static", "uploads"])
   @doc """
   "Uploads" a file to the local storage.
   """
   @impl true
   def upload(file_path_or_binary, _dest, opts) do
-    name = opts[:name] || Path.basename(file_path_or_binary)
+    name = opts[:name] || "#{Path.basename(file_path_or_binary)}.png"
 
     binary =
       if File.regular?(file_path_or_binary) do

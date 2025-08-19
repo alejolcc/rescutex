@@ -6,6 +6,7 @@ defmodule Rescutex.Pets do
   import Geo.PostGIS
   import Pgvector.Ecto.Query
 
+  require Logger
   alias Rescutex.Accounts.User
   alias Rescutex.Pets.Pet
   alias Rescutex.Repo
@@ -41,10 +42,12 @@ defmodule Rescutex.Pets do
   end
 
   @doc """
+  Used for debug purpouses
   Returns the L2 distance of all other pets from a given pet.
 
   It returns a list of `{pet_id, distance}` tuples.
   Returns an empty list if the pet has no embedding.
+
   """
   def get_all_pets_distances(%Pet{embedding: nil}), do: []
 
@@ -52,9 +55,11 @@ defmodule Rescutex.Pets do
     query =
       from p in Pet,
         where: p.id != ^pet.id,
-        select: {p.id, l2_distance(p.embedding, ^pet.embedding)}
+        order_by: [asc: l2_distance(p.embedding, ^pet.embedding)],
+        select: {p.id, l2_distance(p.embedding, ^pet.embedding), p.name}
 
     Repo.all(query)
+    |> Enum.sort_by(fn {_x, y, _} -> y end)
   end
 
   @doc """
@@ -290,17 +295,18 @@ defmodule Rescutex.Pets do
 
   ## Examples
 
-      iex> search_for_pet(pet, distance_in_meters: 5000, threshold: 0.5)
+      iex> match_pets(pet, distance_in_meters: 5000, threshold: 0.5)
       [%Pet{}, ...]
 
   """
-  def search_for_pet(%Pet{} = pet, opts \\ []) do
+  def match_pets(%Pet{} = pet, opts \\ []) do
     distance_in_meters = Keyword.get(opts, :distance_in_meters, 10000)
     threshold = Keyword.get(opts, :threshold, 0.7)
 
     # Basic validation to ensure we have what we need.
     if is_nil(distance_in_meters) or is_nil(threshold) or is_nil(pet.location) or
          is_nil(pet.embedding) do
+        Logger.warning("Missing field needed for matching")
       []
     else
       from(p in Pet,
