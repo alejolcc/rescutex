@@ -306,7 +306,7 @@ defmodule Rescutex.Pets do
     # Basic validation to ensure we have what we need.
     if is_nil(distance_in_meters) or is_nil(threshold) or is_nil(pet.location) or
          is_nil(pet.embedding) do
-        Logger.warning("Missing field needed for matching")
+      Logger.warning("Missing field needed for matching")
       []
     else
       from(p in Pet,

@@ -1,116 +1,62 @@
 defmodule Rescutex.AI.Google.Client do
   @moduledoc """
-  Client to interact with the Gemini API.
-
-  RAG Docs: https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/rag-api-v1#list-rag-files-example-api
+  Client to interact with Google Vertex AI (Gemini and Multimodal Embeddings).
   """
 
+  use Tesla
+  require Logger
   alias Rescutex.AI.Error
 
-  require Logger
+  # Configuration (Defaults provided, can be overridden via config/*.exs)
+  @project_id Application.compile_env(:rescutex, :google_project_id, "rescutex")
+  @location Application.compile_env(:rescutex, :google_location, "us-central1")
+  @goth_instance Rescutex.Goth
 
-  use Tesla
+  # API Config
+  @base_url "https://#{@location}-aiplatform.googleapis.com/v1/projects/#{@project_id}/locations/#{@location}"
+  @gen_model "gemini-2.0-flash-preview-image-generation"
+  @embed_model "multimodalembedding@001"
+
+  # Timeout configuration
+  @timeout 100_000
+
+  @type error_response :: {:error, Error.t()}
+  @type success_response :: {:ok, map()} | {:ok, list(float())}
+
   plug Tesla.Middleware.JSON
-  plug Tesla.Middleware.BaseUrl, @base_url
-  plug Tesla.Middleware.Timeout, timeout: 100_000
-  # @base_url "https://generativelanguage.googleapis.com"
-  @project_id "rescutex"
-  @base_url "https://us-central1-aiplatform.googleapis.com/v1/projects/#{@project_id}/locations/us-central1"
-  # @model "gemini-1.5-pro"
-  @model "gemini-2.0-flash"
-  # @model "gemini-2.0-flash-exp"
+  plug Tesla.Middleware.Timeout, timeout: @timeout
 
-  def generate_content(prompt, system_instruction, opts \\ []) do
-    uri =
-      "/publishers/google/models/#{@model}:generateContent"
+  @doc """
+  Builds the dynamic client with authentication headers.
+  """
+  def client do
+    token = fetch_token!()
 
-    auth = Goth.fetch!(Rescutex.Goth) |> Map.get(:token)
-    body = generate_content_body(prompt, system_instruction, opts)
-
-    with {:ok, body, _headers} <-
-           post(uri, body, headers: [{"Authorization", "Bearer #{auth}"}]) |> handle_response() do
-      usage_metadata = Map.get(body, "usageMetadata")
-
-      Logger.info(inspect(usage_metadata))
-      Logger.debug("Body: #{inspect(body)}")
-
-      if usage_metadata["candidatesTokenCount"] && usage_metadata["candidatesTokenCount"] > 0 do
-        {:ok, body}
-      else
-        message =
-          body
-          |> Map.get("promptFeedback", %{})
-          |> Map.get("blockReason", "Not available")
-
-        {:error, Error.new(:internal_error, 500, message)}
-      end
-    end
-  end
-
-  def get_upload_url(file_path) do
-    Logger.info("Getting upload url for file: #{file_path}")
-    uri = "/upload/v1beta/files?key=#{api_key()}"
-
-    %{size: size} = File.stat!(file_path)
-
-    body = %{
-      file: %{
-        display_name: Path.basename(file_path)
-      }
-    }
-
-    headers =
-      [
-        {"X-Goog-Upload-Protocol", "resumable"},
-        {"X-Goog-Upload-Command", "start"},
-        {"X-Goog-Upload-Header-Content-Length", "#{size}"},
-        {"X-Goog-Upload-Header-Content-Type", "application/pdf"},
-        {"Content-Type", "application/json"}
-      ]
-
-    with {:ok, _body, headers} <- post(uri, body, headers: headers) |> handle_response() do
-      {_header, val} = Enum.find(headers, fn {header, _val} -> header == "x-goog-upload-url" end)
-
-      {:ok, val}
-    end
-  end
-
-  def upload_file(upload_url, file_path) do
-    Logger.info("Uploading file: #{file_path}")
-    uri = upload_url
-    %{size: size} = File.stat!(file_path)
-
-    headers = [
-      {"Content-Length", "#{size}"},
-      {"X-Goog-Upload-Offset", "0"},
-      {"X-Goog-Upload-Command", "upload, finalize"}
+    middleware = [
+      {Tesla.Middleware.BaseUrl, @base_url},
+      {Tesla.Middleware.Headers, [{"Authorization", "Bearer #{token}"}]}
     ]
 
-    body = File.read!(file_path)
-
-    with {:ok, body, _headers} <- post(uri, body, headers: headers) |> handle_response() do
-      {:ok, body["file"]}
-    end
+    Tesla.client(middleware)
   end
 
-  def remove_background(file_path) do
-    uri = "/publishers/google/models/gemini-2.0-flash-preview-image-generation:generateContent"
+  @doc """
+  Sends an image to Gemini to remove the background.
 
-    prompt =
-      """
-      This is a picture of a pet I need to compare the pet with others pets,
-      Remove the existing background from this image and replace it with a solid white background.
-      Do not alter or modify the subject in any way. Ensure the subject remains clear, well-defined,
-      and perfectly preserved.
-      """
+  ## Arguments
+  * `image_binary` - The raw binary content of the image.
+  * `mime_type` - (Optional) Mime type, defaults to "image/jpeg".
+  """
+  @spec remove_background(binary(), String.t()) :: success_response() | error_response()
+  def remove_background(image_binary, mime_type \\ "image/jpeg") do
+    uri = "/publishers/google/models/#{@gen_model}:generateContent"
 
-    auth = Goth.fetch!(Rescutex.Goth) |> Map.get(:token)
-
-    headers = [
-      {"Authorization", "Bearer #{auth}"},
-      {"Content-Type", "application/json"},
-      {"charset", "utf-8"}
-    ]
+    prompt = """
+    This is a picture of a pet I need to compare with other pets.
+    Remove the existing background from this image and replace it with a solid white background.
+    Do not alter or modify the subject in any way. Ensure the subject remains clear, well-defined,
+    and perfectly preserved.
+    """
 
     body = %{
       contents: %{
@@ -118,161 +64,128 @@ defmodule Rescutex.AI.Google.Client do
         parts: [
           %{
             inline_data: %{
-              mime_type: "image/jpg",
-              data: File.read!(file_path) |> :base64.encode()
+              mime_type: mime_type,
+              data: Base.encode64(image_binary)
             }
           },
           %{text: prompt}
         ]
       },
       generation_config: %{
-        temperature: 0,
+        temperature: 0.0,
         response_modalities: ["TEXT", "IMAGE"]
       },
-      safetySettings: %{
-        method: "PROBABILITY",
-        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-        threshold: "BLOCK_MEDIUM_AND_ABOVE"
-      }
+      safetySettings: [
+        %{
+          category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        }
+      ]
     }
 
-    with {:ok, body, _headers} <- post(uri, body, headers: headers) |> handle_response() do
-      usage_metadata = Map.get(body, "usageMetadata")
-
-      Logger.info(inspect(usage_metadata))
-      Logger.debug("Body: #{inspect(body)}")
-
-      if usage_metadata["candidatesTokenCount"] && usage_metadata["candidatesTokenCount"] > 0 do
-        {:ok, body}
-      else
-        message =
-          body
-          |> Map.get("promptFeedback", %{})
-          |> Map.get("blockReason", "Not available")
-
-        {:error, Error.new(:internal_error, 500, message)}
-      end
-    end
+    # Use the dynamic client
+    client()
+    |> post(uri, body)
+    |> handle_response()
+    |> parse_generation_response()
   end
 
-  def create_embedding(file_path) do
-    uri = "/publishers/google/models/multimodalembedding@001:predict"
-
-    auth = Goth.fetch!(Rescutex.Goth) |> Map.get(:token)
-
-    headers = [
-      {"Authorization", "Bearer #{auth}"},
-      {"Content-Type", "application/json"}
-    ]
+  @doc """
+  Creates a multimodal embedding for an image.
+  """
+  @spec create_embedding(binary()) :: {:ok, list(float())} | error_response()
+  def create_embedding(image_binary) do
+    uri = "/publishers/google/models/#{@embed_model}:predict"
 
     body = %{
       instances: [
         %{
           image: %{
-            bytesBase64Encoded: File.read!(file_path) |> :base64.encode()
+            bytesBase64Encoded: Base.encode64(image_binary)
           }
         }
       ]
     }
 
-    with {:ok, body, _headers} <- post(uri, body, headers: headers) |> handle_response() do
-      %{"predictions" => [%{"imageEmbedding" => embedding}]} = body
-      {:ok, embedding}
+    client()
+    |> post(uri, body)
+    |> handle_response()
+    |> parse_embedding_response()
+  end
+
+  # ==========================================
+  # Private Helpers & Response Handling
+  # ==========================================
+
+  defp fetch_token! do
+    case Goth.fetch(@goth_instance) do
+      {:ok, %{token: token}} -> token
+      {:error, reason} -> raise "Failed to fetch Google Auth token: #{inspect(reason)}"
     end
   end
 
-  ###########
-  # Private #
-  ###########
-
-  defp handle_response({:ok, %Tesla.Env{status: 200, body: body, headers: headers}}) do
-    {:ok, body, headers}
-  end
+  # Generic HTTP handling
+  defp handle_response({:ok, %Tesla.Env{status: 200, body: body}}), do: {:ok, body}
 
   defp handle_response({:ok, %Tesla.Env{status: status, body: body}}) do
-    message = body |> Map.get("error") |> Map.get("message")
-    reason = body |> Map.get("error") |> Map.get("status") |> reason()
+    Logger.warning("Google API Error [#{status}]: #{inspect(body)}")
+    error_info = Map.get(body, "error", %{})
+
+    message = Map.get(error_info, "message", "Unknown API Error")
+    reason = error_info |> Map.get("status") |> parse_reason_string()
+
     {:error, Error.new(reason, status, message)}
   end
 
-  defp handle_response({:error, :econnrefused}) do
-    {:error, Error.new(:econnrefused, 503, "Server down")}
+  defp handle_response({:error, :econnrefused}),
+    do: {:error, Error.new(:econnrefused, 503, "Server down")}
+
+  defp handle_response({:error, :timeout}),
+    do: {:error, Error.new(:timeout, 408, "Timeout error")}
+
+  defp handle_response({:error, reason}) do
+    Logger.error("Internal Client Error: #{inspect(reason)}")
+    {:error, Error.new(:internal_error, 500, "Unknown internal client error")}
   end
 
-  defp handle_response({:error, :timeout}) do
-    {:error, Error.new(:timeout, 408, "Timeout error")}
+  # Specific Parsing Logic for Gemini Generation
+  defp parse_generation_response({:error, _} = error), do: error
+
+  defp parse_generation_response({:ok, body}) do
+    usage_metadata = Map.get(body, "usageMetadata", %{})
+
+    Logger.info("Gemini Usage: #{inspect(usage_metadata)}")
+
+    # Check if content was actually generated or blocked
+    case Map.get(body, "candidates") do
+      nil -> extract_block_reason(body)
+      [] -> extract_block_reason(body)
+      _candidates -> {:ok, body}
+    end
   end
 
-  defp handle_response(error) do
-    Logger.error("Error: #{inspect(error)}")
-    {:error, Error.new(:internal_error, 500, "Unknown error")}
+  defp extract_block_reason(body) do
+    reason =
+      body
+      |> Map.get("promptFeedback", %{})
+      |> Map.get("blockReason", "Unknown Block Reason")
+
+    {:error, Error.new(:blocked, 400, "Content generation blocked: #{reason}")}
   end
 
-  defp reason("INVALID_ARGUMENT"), do: :invalid_argument
-  defp reason("PERMISSION_DENIED"), do: :permission_denied
-  defp reason(_), do: :unexpected_error
+  # Specific Parsing Logic for Embeddings
+  defp parse_embedding_response({:error, _} = error), do: error
 
-  defp generate_content_body(prompt, system_instruction, opts) do
-    file_uri = opts[:file_uri] || nil
-    file_data = opts[:file_data] || nil
-    use_rag? = opts[:use_rag] || nil
-
-    prompt = %{text: prompt}
-
-    file_uri = file_uri && %{file_data: %{mime_type: "application/pdf", file_uri: file_uri}}
-    file_data = file_data && %{inline_data: %{mime_type: "application/pdf", data: file_data}}
-
-    parts =
-      [prompt, file_uri, file_data]
-      |> Enum.filter(& &1)
-
-    contents = [
-      %{
-        role: "user",
-        parts: parts
-      }
-    ]
-
-    system_instruction = %{
-      parts: [
-        %{text: system_instruction}
-      ]
-    }
-
-    tools = %{
-      retrieval: %{
-        disable_attribution: false,
-        vertex_rag_store: %{
-          rag_resources: %{
-            rag_corpus:
-              "projects/97522503747/locations/us-central1/ragCorpora/6917529027641081856"
-          },
-          similarity_top_k: 10,
-          vector_distance_threshold: 0.7
-        }
-      }
-    }
-
-    tools = use_rag? && tools
-
-    safety_settings = [
-      %{category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE"},
-      %{category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE"},
-      %{category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE"},
-      %{category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE"}
-    ]
-
-    config = opts[:config] || %{}
-
-    %{}
-    |> Map.put(:contents, contents)
-    |> Map.put(:systemInstruction, system_instruction)
-    |> Map.put(:safetySettings, safety_settings)
-    |> Map.put(:generationConfig, config)
-    |> Map.put(:tools, tools)
+  defp parse_embedding_response({:ok, body}) do
+    try do
+      %{"predictions" => [%{"imageEmbedding" => embedding} | _]} = body
+      {:ok, embedding}
+    rescue
+      _ -> {:error, Error.new(:parsing_error, 500, "Invalid embedding response format")}
+    end
   end
 
-  defp api_key do
-    System.fetch_env!("IA_GOOGLE_API_KEY")
-  end
+  defp parse_reason_string("INVALID_ARGUMENT"), do: :invalid_argument
+  defp parse_reason_string("PERMISSION_DENIED"), do: :permission_denied
+  defp parse_reason_string(_), do: :unexpected_error
 end
