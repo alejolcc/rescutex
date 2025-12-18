@@ -33,10 +33,12 @@ defmodule Rescutex.MixProject do
   defp deps do
     [
       {:bcrypt_elixir, "~> 3.0"},
-      {:tidewave, "~> 0.1", only: [:dev]},
+      {:tidewave, "~> 0.5.2", only: [:dev]},
       {:igniter, "~> 0.6", only: [:dev, :test]},
       {:pgvector, "~> 0.3.0"},
       {:goth, "~> 1.4"},
+      {:req, "~> 0.5.0"},
+      {:req_llm, "~> 1.0"},
       {:tesla, "~> 1.14"},
       {:phoenix, "~> 1.7.14"},
       {:phoenix_ecto, "~> 4.5"},
