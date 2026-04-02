@@ -40,4 +40,8 @@ config :phoenix, :plug_init_mode, :runtime
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
 
+config :rescutex, :ai,
+  processor_adapter: Rescutex.AI.Processor.Noop,
+  embedder_adapter: Rescutex.AI.Embedder.Noop
+
 config :rescutex, Oban, testing: :inline

@@ -1,7 +1,6 @@
 defmodule Rescutex.AI do
   alias Rescutex.Pets
   alias Rescutex.Pets.Pet
-  alias Rescutex.AI.Google.Client
 
   require Logger
 
@@ -18,7 +17,7 @@ defmodule Rescutex.AI do
          # Determine which image to use (Processed vs Original)
          {:ok, image_to_embed} <- process_image_for_embedding(pet, original_binary),
          # Generate Embedding
-         {:ok, embeddings} <- Client.create_embedding(image_to_embed) do
+         {:ok, embeddings} <- create_embedding(image_to_embed) do
       Pets.update_pet(pet, %{embedding: embeddings})
     else
       {:error, reason} ->
@@ -29,11 +28,13 @@ defmodule Rescutex.AI do
 
   # ==========================================
   # Pipeline Steps
-  # ==========================================
+  # = ::::::::::::::::::::::::::::::::::::::::
 
   defp process_image_for_embedding(pet, original_binary) do
-    # Try to remove background
-    case Client.remove_background(original_binary) do
+    adapter = processor_adapter()
+
+    # Try to process the image (e.g. remove background)
+    case adapter.remove_background(original_binary) do
       {:ok, processed_binary} ->
         # Write to disk only if needed
         save_debug_image(pet, processed_binary)
@@ -42,11 +43,15 @@ defmodule Rescutex.AI do
       {:error, reason} ->
         # Failure: Fallback to original image as requested
         Logger.warning(
-          "Remove background failed for Pet #{pet.id} (#{inspect(reason)}). Using original image."
+          "Image processing failed for Pet #{pet.id} (#{inspect(reason)}). Using original image."
         )
 
         {:ok, original_binary}
     end
+  end
+
+  defp create_embedding(binary) do
+    embedder_adapter().create_embedding(binary)
   end
 
   defp read_pet_image(pet) do
@@ -61,6 +66,14 @@ defmodule Rescutex.AI do
   # ==========================================
   # Helpers
   # ==========================================
+
+  defp processor_adapter do
+    Application.get_env(:rescutex, :ai)[:processor_adapter]
+  end
+
+  defp embedder_adapter do
+    Application.get_env(:rescutex, :ai)[:embedder_adapter]
+  end
 
   # Keeps the debug file writing logic, but prevents it from blocking the main flow
   defp save_debug_image(pet, binary) do
