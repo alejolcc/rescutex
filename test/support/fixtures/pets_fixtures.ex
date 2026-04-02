@@ -17,8 +17,8 @@ defmodule Rescutex.PetsFixtures do
         "name" => "some name",
         "pictures" => ["some pictures"],
         "race" => "some race",
-        "kind" => "dog",
-        "post_type" => "found"
+        "kind" => :dog,
+        "post_type" => :found
       })
 
     {:ok, pet} = Rescutex.Pets.create_pet(user, attrs)
