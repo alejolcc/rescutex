@@ -53,7 +53,11 @@ defmodule RescutexWeb.PetLive.FormComponent do
      socket
      |> assign(assigns)
      |> assign(:uploaded_files, [])
-     |> allow_upload(:avatar, accept: ~w(.jpg .jpeg .png), max_entries: 1)
+     |> allow_upload(:avatar,
+       accept: ~w(.jpg .jpeg .png),
+       max_entries: 1,
+       max_file_size: 20_000_000
+     )
      |> assign_form(changeset)}
   end
 

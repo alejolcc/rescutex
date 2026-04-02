@@ -13,9 +13,6 @@ defmodule Rescutex.AI do
     Enum.each(pets, fn pet -> calculate_embedding(pet) end)
   end
 
-  @doc """
-  Orchestrates the pipeline: Read Image -> Remove Background (optional) -> Embed -> Update DB.
-  """
   def calculate_embedding(%Pet{} = pet) do
     with {:ok, original_binary} <- read_pet_image(pet),
          # Determine which image to use (Processed vs Original)
@@ -37,18 +34,10 @@ defmodule Rescutex.AI do
   defp process_image_for_embedding(pet, original_binary) do
     # Try to remove background
     case Client.remove_background(original_binary) do
-      {:ok, response_body} ->
-        # Success: Decode the new image
-        case decode_gemini_image(response_body) do
-          {:ok, processed_binary} ->
-            # Write to disk only if needed
-            save_debug_image(pet, processed_binary)
-            {:ok, processed_binary}
-
-          _ ->
-            Logger.warning("Background removed, but failed to decode image. Using original.")
-            {:ok, original_binary}
-        end
+      {:ok, processed_binary} ->
+        # Write to disk only if needed
+        save_debug_image(pet, processed_binary)
+        {:ok, processed_binary}
 
       {:error, reason} ->
         # Failure: Fallback to original image as requested
@@ -72,30 +61,6 @@ defmodule Rescutex.AI do
   # ==========================================
   # Helpers
   # ==========================================
-
-  # Extracts the raw binary from the complex Gemini JSON structure
-  defp decode_gemini_image(body) do
-    try do
-      base64_data =
-        get_in(body, [
-          "candidates",
-          Access.at(0),
-          "content",
-          "parts",
-          Access.at(0),
-          "inlineData",
-          "data"
-        ])
-
-      if base64_data do
-        {:ok, Base.decode64!(base64_data)}
-      else
-        {:error, :no_image_data_found}
-      end
-    rescue
-      e -> {:error, e}
-    end
-  end
 
   # Keeps the debug file writing logic, but prevents it from blocking the main flow
   defp save_debug_image(pet, binary) do

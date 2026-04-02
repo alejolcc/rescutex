@@ -14,14 +14,14 @@ defmodule Rescutex.AI.Google.Client do
 
   # API Config
   @base_url "https://#{@location}-aiplatform.googleapis.com/v1/projects/#{@project_id}/locations/#{@location}"
-  @gen_model "gemini-2.0-flash-preview-image-generation"
+  @edit_model "imagen-3.0-capability-001"
   @embed_model "multimodalembedding@001"
 
   # Timeout configuration
   @timeout 100_000
 
   @type error_response :: {:error, Error.t()}
-  @type success_response :: {:ok, map()} | {:ok, list(float())}
+  @type success_response :: {:ok, map()} | {:ok, list(float())} | {:ok, binary()}
 
   plug Tesla.Middleware.JSON
   plug Tesla.Middleware.Timeout, timeout: @timeout
@@ -41,53 +41,59 @@ defmodule Rescutex.AI.Google.Client do
   end
 
   @doc """
-  Sends an image to Gemini to remove the background.
+  Sends an image to Imagen to remove the background.
 
   ## Arguments
   * `image_binary` - The raw binary content of the image.
   * `mime_type` - (Optional) Mime type, defaults to "image/jpeg".
   """
   @spec remove_background(binary(), String.t()) :: success_response() | error_response()
-  def remove_background(image_binary, mime_type \\ "image/jpeg") do
-    uri = "/publishers/google/models/#{@gen_model}:generateContent"
+  def remove_background(image_binary, _mime_type \\ "image/jpeg") do
+    uri = "/publishers/google/models/#{@edit_model}:predict"
 
-    prompt = """
-    This is a picture of a pet I need to compare with other pets.
-    Remove the existing background from this image and replace it with a solid white background.
-    Do not alter or modify the subject in any way. Ensure the subject remains clear, well-defined,
-    and perfectly preserved.
-    """
+    # CHANGE 1: The prompt must describe the NEW background only.
+    # Do not include instructions like "remove" or "do not alter subject".
+    prompt = "clean solid white background"
+
+    # 2. Negative Prompt: Explicitly forbid the "invented" stuff.
+    negative_prompt =
+      "shadows, contact shadows, floor, wall, horizon line, 3d render, realistic texture, lighting effects, gradient, artifacts, noise"
 
     body = %{
-      contents: %{
-        role: "USER",
-        parts: [
-          %{
-            inline_data: %{
-              mime_type: mime_type,
-              data: Base.encode64(image_binary)
-            }
-          },
-          %{text: prompt}
-        ]
-      },
-      generation_config: %{
-        temperature: 0.0,
-        response_modalities: ["TEXT", "IMAGE"]
-      },
-      safetySettings: [
+      instances: [
         %{
-          category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          prompt: prompt,
+          referenceImages: [
+            %{
+              referenceType: "REFERENCE_TYPE_RAW",
+              referenceId: 1,
+              referenceImage: %{
+                bytesBase64Encoded: Base.encode64(image_binary)
+              }
+            },
+            %{
+              referenceType: "REFERENCE_TYPE_MASK",
+              referenceId: 2,
+              maskImageConfig: %{
+                # Automatically selects background
+                maskMode: "MASK_MODE_BACKGROUND"
+              }
+            }
+          ]
         }
-      ]
+      ],
+      parameters: %{
+        sampleCount: 1,
+        editMode: "EDIT_MODE_BGSWAP",
+        # CHANGE 2: Force the model to respect the "white background" prompt strongly
+        guidanceScale: 200
+      }
     }
 
-    # Use the dynamic client
     client()
     |> post(uri, body)
     |> handle_response()
-    |> parse_generation_response()
+    |> parse_edit_response()
   end
 
   @doc """
@@ -148,29 +154,27 @@ defmodule Rescutex.AI.Google.Client do
     {:error, Error.new(:internal_error, 500, "Unknown internal client error")}
   end
 
-  # Specific Parsing Logic for Gemini Generation
-  defp parse_generation_response({:error, _} = error), do: error
+  # Specific Parsing Logic for Imagen Generation
+  defp parse_edit_response({:error, _} = error), do: error
 
-  defp parse_generation_response({:ok, body}) do
-    usage_metadata = Map.get(body, "usageMetadata", %{})
+  defp parse_edit_response({:ok, body}) do
+    try do
+      case body do
+        %{"predictions" => [%{"bytesBase64Encoded" => base64} | _]} ->
+          {:ok, Base.decode64!(base64)}
 
-    Logger.info("Gemini Usage: #{inspect(usage_metadata)}")
+        %{"predictions" => [base64 | _]} when is_binary(base64) ->
+          {:ok, Base.decode64!(base64)}
 
-    # Check if content was actually generated or blocked
-    case Map.get(body, "candidates") do
-      nil -> extract_block_reason(body)
-      [] -> extract_block_reason(body)
-      _candidates -> {:ok, body}
+        _ ->
+          Logger.error("Unexpected Imagen response: #{inspect(body)}")
+          {:error, Error.new(:parsing_error, 500, "Invalid edit response format")}
+      end
+    rescue
+      e ->
+        Logger.error("Failed to decode Imagen response: #{inspect(e)}")
+        {:error, Error.new(:parsing_error, 500, "Failed to decode image")}
     end
-  end
-
-  defp extract_block_reason(body) do
-    reason =
-      body
-      |> Map.get("promptFeedback", %{})
-      |> Map.get("blockReason", "Unknown Block Reason")
-
-    {:error, Error.new(:blocked, 400, "Content generation blocked: #{reason}")}
   end
 
   # Specific Parsing Logic for Embeddings
