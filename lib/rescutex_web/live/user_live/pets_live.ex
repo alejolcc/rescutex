@@ -23,7 +23,13 @@ defmodule RescutexWeb.UserLive.PetsLive do
 
     <div class="grid grid-cols-1 gap-4 p-4 justify-items-center">
       <.link :for={pet <- @pets} navigate={~p"/pets/#{pet.id}"}>
-        <.pet_card src={pet.pictures} name={pet.name} text={pet.details} id={pet.id} />
+        <.pet_card
+          src={pet.pictures}
+          name={pet.name}
+          text={pet.details}
+          id={pet.id}
+          gender={pet.gender}
+        />
       </.link>
     </div>
     """
