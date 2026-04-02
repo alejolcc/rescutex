@@ -3,7 +3,6 @@ defmodule Rescutex.AI.Google.Client do
   Client to interact with Google Vertex AI (Gemini and Multimodal Embeddings).
   """
 
-  use Tesla
   require Logger
   alias Rescutex.AI.Error
 
@@ -23,9 +22,6 @@ defmodule Rescutex.AI.Google.Client do
   @type error_response :: {:error, Error.t()}
   @type success_response :: {:ok, map()} | {:ok, list(float())} | {:ok, binary()}
 
-  plug Tesla.Middleware.JSON
-  plug Tesla.Middleware.Timeout, timeout: @timeout
-
   @doc """
   Builds the dynamic client with authentication headers.
   """
@@ -34,7 +30,9 @@ defmodule Rescutex.AI.Google.Client do
 
     middleware = [
       {Tesla.Middleware.BaseUrl, @base_url},
-      {Tesla.Middleware.Headers, [{"Authorization", "Bearer #{token}"}]}
+      {Tesla.Middleware.Headers, [{"Authorization", "Bearer #{token}"}]},
+      Tesla.Middleware.JSON,
+      {Tesla.Middleware.Timeout, timeout: @timeout}
     ]
 
     Tesla.client(middleware)
@@ -90,8 +88,7 @@ defmodule Rescutex.AI.Google.Client do
       }
     }
 
-    client()
-    |> post(uri, body)
+    Tesla.post(client(), uri, body)
     |> handle_response()
     |> parse_edit_response()
   end
@@ -113,8 +110,7 @@ defmodule Rescutex.AI.Google.Client do
       ]
     }
 
-    client()
-    |> post(uri, body)
+    Tesla.post(client(), uri, body)
     |> handle_response()
     |> parse_embedding_response()
   end
