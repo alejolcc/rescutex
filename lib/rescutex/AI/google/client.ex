@@ -73,7 +73,6 @@ defmodule Rescutex.AI.Google.Client do
               referenceType: "REFERENCE_TYPE_MASK",
               referenceId: 2,
               maskImageConfig: %{
-                # Automatically selects background
                 maskMode: "MASK_MODE_BACKGROUND"
               }
             }
@@ -83,8 +82,8 @@ defmodule Rescutex.AI.Google.Client do
       parameters: %{
         sampleCount: 1,
         editMode: "EDIT_MODE_BGSWAP",
-        # CHANGE 2: Force the model to respect the "white background" prompt strongly
-        guidanceScale: 200
+        guidanceScale: 200,
+        negativePrompt: negative_prompt
       }
     }
 

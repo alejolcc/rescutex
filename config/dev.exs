@@ -15,6 +15,10 @@ config :rescutex, Rescutex.CloudStorage,
   storage_adapter: Rescutex.CloudStorage.Adapters.LocalStorage,
   bucket: "rescutex-images"
 
+config :rescutex, :ai,
+  processor_adapter: Rescutex.AI.Processor.Google,
+  embedder_adapter: Rescutex.AI.Embedder.Noop
+
 google_Storage_credentials =
   "RESCUTEX_CREDS"
   |> System.get_env("")
