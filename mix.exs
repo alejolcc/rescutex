@@ -5,9 +5,10 @@ defmodule Rescutex.MixProject do
     [
       app: :rescutex,
       version: "0.1.0",
-      elixir: "~> 1.18",
+      elixir: "~> 1.19",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
+      listeners: [Phoenix.CodeReloader],
       aliases: aliases(),
       deps: deps()
     ]
@@ -40,7 +41,7 @@ defmodule Rescutex.MixProject do
       {:req, "~> 0.5.0"},
       {:req_llm, "~> 1.0"},
       {:tesla, "~> 1.14"},
-      {:phoenix, "~> 1.7.14"},
+      {:phoenix, "~> 1.8.5"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.10"},
       {:postgrex, ">= 0.0.0"},
