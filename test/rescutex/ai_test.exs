@@ -23,10 +23,10 @@ defmodule Rescutex.AITest do
     test "successfully updates pet with dummy embedding using Noop adapters", %{pet: pet} do
       assert {:ok, updated_pet} = AI.calculate_embedding(pet)
       assert updated_pet.embedding != nil
-      
+
       # Convert Pgvector to list for verification
       embedding_list = Pgvector.to_list(updated_pet.embedding)
-      
+
       # Noop embedder returns 1408 zeros
       assert Enum.count(embedding_list) == 1408
       assert Enum.all?(embedding_list, fn x -> x == 0.0 end)

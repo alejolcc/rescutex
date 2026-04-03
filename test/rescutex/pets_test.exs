@@ -94,6 +94,26 @@ defmodule Rescutex.PetsTest do
       pet = pet_fixture(user)
       assert %Ecto.Changeset{} = Pets.change_pet(pet)
     end
+
+    test "resolve_pet/3 resolves a pet for the owner", %{user: user} do
+      pet = pet_fixture(user)
+      assert pet.status == :open
+
+      assert {:ok, %{pet: updated_pet, resolution: resolution}} =
+               Pets.resolve_pet(pet, user, %{"notes" => "Found him!"})
+
+      assert updated_pet.status == :resolved
+      assert resolution.notes == "Found him!"
+      assert resolution.pet_id == pet.id
+      assert resolution.user_id == user.id
+    end
+
+    test "resolve_pet/3 returns error if not the owner", %{user: user} do
+      pet = pet_fixture(user)
+      other_user = AccountsFixtures.user_fixture()
+
+      assert {:error, :unauthorized} = Pets.resolve_pet(pet, other_user, %{})
+    end
   end
 
   describe "geospatial and similarity searches" do
@@ -129,10 +149,17 @@ defmodule Rescutex.PetsTest do
     end
 
     test "get_similar_pets/2 returns pets ordered by similarity", %{user: user} do
-      pet_main = pet_fixture(user, %{"kind" => :dog}) |> set_embedding(Enum.map(1..1408, fn _ -> 0.0 end))
-      pet_similar = pet_fixture(user, %{"kind" => :dog}) |> set_embedding(Enum.map(1..1408, fn _ -> 0.1 end))
-      pet_different = pet_fixture(user, %{"kind" => :dog}) |> set_embedding(Enum.map(1..1408, fn _ -> 0.9 end))
-      pet_other_kind = pet_fixture(user, %{"kind" => :cat}) |> set_embedding(Enum.map(1..1408, fn _ -> 0.0 end))
+      pet_main =
+        pet_fixture(user, %{"kind" => :dog}) |> set_embedding(Enum.map(1..1408, fn _ -> 0.0 end))
+
+      pet_similar =
+        pet_fixture(user, %{"kind" => :dog}) |> set_embedding(Enum.map(1..1408, fn _ -> 0.1 end))
+
+      pet_different =
+        pet_fixture(user, %{"kind" => :dog}) |> set_embedding(Enum.map(1..1408, fn _ -> 0.9 end))
+
+      pet_other_kind =
+        pet_fixture(user, %{"kind" => :cat}) |> set_embedding(Enum.map(1..1408, fn _ -> 0.0 end))
 
       results = Pets.get_similar_pets(pet_main)
       result_ids = Enum.map(results, & &1.id)
@@ -145,20 +172,24 @@ defmodule Rescutex.PetsTest do
 
     test "match_pets/2 filters by both distance and similarity", %{user: user} do
       # Main pet
-      pet_main = pet_fixture(user, %{"kind" => :dog, "location" => %{"lat" => 0.0, "long" => 0.0}})
-      |> set_embedding(Enum.map(1..1408, fn _ -> 0.0 end))
+      pet_main =
+        pet_fixture(user, %{"kind" => :dog, "location" => %{"lat" => 0.0, "long" => 0.0}})
+        |> set_embedding(Enum.map(1..1408, fn _ -> 0.0 end))
 
       # Near and similar (Match)
-      pet_match = pet_fixture(user, %{"kind" => :dog, "location" => %{"lat" => 0.01, "long" => 0.01}})
-      |> set_embedding(Enum.map(1..1408, fn _ -> 0.1 end))
+      pet_match =
+        pet_fixture(user, %{"kind" => :dog, "location" => %{"lat" => 0.01, "long" => 0.01}})
+        |> set_embedding(Enum.map(1..1408, fn _ -> 0.1 end))
 
       # Near but different (No match - similarity)
-      _pet_far_embedding = pet_fixture(user, %{"kind" => :dog, "location" => %{"lat" => 0.01, "long" => 0.01}})
-      |> set_embedding(Enum.map(1..1408, fn _ -> 1.0 end))
+      _pet_far_embedding =
+        pet_fixture(user, %{"kind" => :dog, "location" => %{"lat" => 0.01, "long" => 0.01}})
+        |> set_embedding(Enum.map(1..1408, fn _ -> 1.0 end))
 
       # Similar but far (No match - distance)
-      _pet_far_distance = pet_fixture(user, %{"kind" => :dog, "location" => %{"lat" => 1.0, "long" => 1.0}})
-      |> set_embedding(Enum.map(1..1408, fn _ -> 0.1 end))
+      _pet_far_distance =
+        pet_fixture(user, %{"kind" => :dog, "location" => %{"lat" => 1.0, "long" => 1.0}})
+        |> set_embedding(Enum.map(1..1408, fn _ -> 0.1 end))
 
       results = Pets.match_pets(pet_main, distance_in_meters: 5000, threshold: 5.0)
       result_ids = Enum.map(results, & &1.id)

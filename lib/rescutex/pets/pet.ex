@@ -18,8 +18,10 @@ defmodule Rescutex.Pets.Pet do
     field :race, :string
     field :embedding, Pgvector.Ecto.Vector
     field :post_type, Ecto.Enum, values: [:found, :lost, :transit, :adoption]
+    field :status, Ecto.Enum, values: [:open, :resolved], default: :open
 
     belongs_to :user, Rescutex.Accounts.User
+    has_one :resolution, Rescutex.Pets.Resolution
 
     # REVIEW: Not sure if this will be used
     many_to_many :tags, Tag, join_through: PetTag
@@ -40,7 +42,8 @@ defmodule Rescutex.Pets.Pet do
       :kind,
       :gender,
       :user_id,
-      :post_type
+      :post_type,
+      :status
     ])
     |> cast_location(attrs)
     |> validate_required([

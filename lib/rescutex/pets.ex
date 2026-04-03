@@ -9,6 +9,7 @@ defmodule Rescutex.Pets do
   require Logger
   alias Rescutex.Accounts.User
   alias Rescutex.Pets.Pet
+  alias Rescutex.Pets.Resolution
   alias Rescutex.Repo
   alias Ecto.Changeset
 
@@ -320,6 +321,23 @@ defmodule Rescutex.Pets do
         ]
       )
       |> Repo.all()
+    end
+  end
+
+  @doc """
+  Resolves a pet case. Only the owner of the pet post can resolve it.
+  """
+  def resolve_pet(%Pet{} = pet, %User{} = user, attrs \\ %{}) do
+    if pet.user_id != user.id do
+      {:error, :unauthorized}
+    else
+      Ecto.Multi.new()
+      |> Ecto.Multi.insert(
+        :resolution,
+        Resolution.changeset(%Resolution{pet_id: pet.id, user_id: user.id}, attrs)
+      )
+      |> Ecto.Multi.update(:pet, Pet.changeset(pet, %{status: :resolved}))
+      |> Repo.transaction()
     end
   end
 end
