@@ -44,7 +44,7 @@ defmodule RescutexWeb.PetLive.Index do
 
       <div class="relative items-center justify-center">
         <div class="grid lg:grid-cols-4 gap-4 sm:grid-cols-1">
-          <div id="new_pet_button" phx-update="ignore">
+          <div :if={@current_user} id="new_pet_button" phx-update="ignore">
             <.link navigate={~p"/pets/new"}>
               <.pet_card_button />
             </.link>

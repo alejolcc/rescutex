@@ -36,6 +36,9 @@ defmodule RescutexWeb.Router do
       on_mount: [{RescutexWeb.UserAuth, :mount_current_user}] do
       live "/users/confirm/:token", UserConfirmationLive, :edit
       live "/users/confirm", UserConfirmationInstructionsLive, :new
+
+      # Publicly accessible list (lost/found/etc)
+      live "/pets", PetLive.Index, :index
     end
   end
 
@@ -62,11 +65,8 @@ defmodule RescutexWeb.Router do
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
       live "/users/my_pets", UserLive.PetsLive, :index
 
-      # Pets routes
+      # Protected Pet routes
       live "/pets/new", PetLive.Index, :new
-      # live "/pets/:id/edit", PetLive.Index, :edit
-      # live "/pets/:id/show/edit", PetLive.Show, :edit
-      live "/pets", PetLive.Index, :index
       live "/pets/:id", PetLive.Show, :show
       delete "/users/log_out", UserSessionController, :delete
     end
@@ -81,11 +81,6 @@ defmodule RescutexWeb.Router do
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:rescutex, :dev_routes) do
-    # If you want to use the LiveDashboard in production, you should put
-    # it behind authentication and allow only admins to access it.
-    # If your application does not have an admins-only section yet,
-    # you can use Plug.BasicAuth to set up some basic authentication
-    # as long as you are also using SSL (which you should anyway).
     import Phoenix.LiveDashboard.Router
 
     scope "/dev" do
