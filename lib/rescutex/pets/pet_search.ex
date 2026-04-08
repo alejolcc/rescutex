@@ -14,7 +14,8 @@ defmodule Rescutex.Pets.PetSearch do
   @doc false
   def changeset(pet_search, attrs) do
     pet_search
-    |> cast(attrs, [:kind, :distance_in_meters, :image_data])
+    |> cast(attrs, [:kind, :distance_in_meters, :image_data, :location])
+    |> validate_required([:kind, :image_data, :location])
     |> validate_inclusion(:kind, [:dog, :cat])
   end
 end

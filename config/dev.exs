@@ -16,7 +16,7 @@ config :rescutex, Rescutex.CloudStorage,
   bucket: "rescutex-images"
 
 config :rescutex, :ai,
-  processor_adapter: Rescutex.AI.Processor.Google,
+  processor_adapter: Rescutex.AI.Processor.Noop,
   embedder_adapter: Rescutex.AI.Embedder.Noop
 
 google_Storage_credentials =
