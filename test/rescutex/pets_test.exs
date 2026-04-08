@@ -196,5 +196,39 @@ defmodule Rescutex.PetsTest do
 
       assert result_ids == [pet_match.id]
     end
+
+    test "search_pets/1 filters by kind, location and similarity using PetSearch", %{user: user} do
+      # Target pet
+      target_pet =
+        pet_fixture(user, %{"kind" => :dog, "location" => %{"lat" => 0.0, "long" => 0.0}})
+        |> set_embedding(Enum.map(1..1408, fn _ -> 0.001 end))
+
+      # Different kind (No match)
+      _pet_diff_kind =
+        pet_fixture(user, %{"kind" => :cat, "location" => %{"lat" => 0.0, "long" => 0.0}})
+        |> set_embedding(Enum.map(1..1408, fn _ -> 0.1 end))
+
+      # Far away (No match)
+      _pet_far =
+        pet_fixture(user, %{"kind" => :dog, "location" => %{"lat" => 1.0, "long" => 1.0}})
+        |> set_embedding(Enum.map(1..1408, fn _ -> 0.1 end))
+
+      # Different embedding (No match)
+      _pet_diff_embedding =
+        pet_fixture(user, %{"kind" => :dog, "location" => %{"lat" => 0.0, "long" => 0.0}})
+        |> set_embedding(Enum.map(1..1408, fn _ -> 10.0 end))
+
+      search = %Rescutex.Pets.PetSearch{
+        kind: :dog,
+        location: %Geo.Point{coordinates: {0.0, 0.0}, srid: 4326},
+        distance_in_meters: 5000,
+        embedding: Pgvector.new(Enum.map(1..1408, fn _ -> 0.0 end))
+      }
+
+      results = Pets.search_pets(search)
+      result_ids = Enum.map(results, & &1.id)
+
+      assert result_ids == [target_pet.id]
+    end
   end
 end

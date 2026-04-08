@@ -1,6 +1,7 @@
 defmodule Rescutex.AI do
   alias Rescutex.Pets
   alias Rescutex.Pets.Pet
+  alias Rescutex.Pets.PetSearch
 
   require Logger
 
@@ -26,24 +27,47 @@ defmodule Rescutex.AI do
     end
   end
 
+  def calculate_embedding(%PetSearch{} = search) do
+    with {:ok, image_to_embed} <- process_image_for_embedding(search, search.image_data),
+         {:ok, embeddings} <- create_embedding(image_to_embed) do
+      {:ok, %PetSearch{search | embedding: embeddings}}
+    else
+      {:error, reason} ->
+        Logger.error("Failed to calculate embedding for PetSearch: #{inspect(reason)}")
+        {:error, reason}
+    end
+  end
+
   # ==========================================
   # Pipeline Steps
   # = ::::::::::::::::::::::::::::::::::::::::
 
-  defp process_image_for_embedding(pet, original_binary) do
+  defp process_image_for_embedding(%Pet{} = pet, original_binary) do
+    do_process_image(
+      original_binary,
+      fn processed_binary -> save_debug_image(pet, processed_binary) end,
+      "Pet #{pet.id}"
+    )
+  end
+
+  defp process_image_for_embedding(%PetSearch{}, original_binary) do
+    do_process_image(original_binary, fn _ -> :ok end, "PetSearch")
+  end
+
+  defp do_process_image(original_binary, on_success_fn, log_context) do
     adapter = processor_adapter()
 
     # Try to process the image (e.g. remove background)
     case adapter.remove_background(original_binary) do
       {:ok, processed_binary} ->
         # Write to disk only if needed
-        save_debug_image(pet, processed_binary)
+        on_success_fn.(processed_binary)
         {:ok, processed_binary}
 
       {:error, reason} ->
         # Failure: Fallback to original image as requested
         Logger.warning(
-          "Image processing failed for Pet #{pet.id} (#{inspect(reason)}). Using original image."
+          "Image processing failed for #{log_context} (#{inspect(reason)}). Using original image."
         )
 
         {:ok, original_binary}

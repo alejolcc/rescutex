@@ -9,9 +9,34 @@ defmodule Rescutex.Pets do
   require Logger
   alias Rescutex.Accounts.User
   alias Rescutex.Pets.Pet
+  alias Rescutex.Pets.PetSearch
   alias Rescutex.Pets.Resolution
   alias Rescutex.Repo
   alias Ecto.Changeset
+
+  @doc """
+  Performs a similarity search using a PetSearch schema.
+  Always filters by kind and location.
+  """
+  def search_pets(%PetSearch{} = search) do
+    limit = 10
+    threshold = 0.8
+    distance = search.distance_in_meters || 10000
+
+    if is_nil(search.embedding) or is_nil(search.kind) or is_nil(search.location) do
+      Logger.warning("Embedding, kind, and location are required for search_pets")
+      []
+    else
+      from(p in Pet,
+        where: p.kind == ^search.kind,
+        where: st_dwithin_in_meters(p.location, ^search.location, ^distance),
+        where: l2_distance(p.embedding, ^search.embedding) < ^threshold,
+        order_by: l2_distance(p.embedding, ^search.embedding),
+        limit: ^limit
+      )
+      |> Repo.all()
+    end
+  end
 
   def get_similar_pets(pet, opts \\ []) do
     limit = Keyword.get(opts, :limit, 6)

@@ -25,6 +25,7 @@ defmodule RescutexWeb.Router do
 
     get "/", PageController, :home
     live "/map", MapLive, :index
+    live "/search", SearchLive, :index
   end
 
   ## Authentication routes

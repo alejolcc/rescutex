@@ -61,6 +61,12 @@
 <!-- Desktop and Mobile Menu -->
         <div class="hidden lg:flex flex-grow items-center justify-end relative" data-menu>
           <div class="flex flex-col lg:flex-row lg:items-center lg:gap-4 absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20 lg:static lg:mt-0 lg:w-auto lg:bg-transparent lg:shadow-none">
+            <a
+              href={~p"/search"}
+              class="block px-4 py-2 font-semibold text-gray-800 rounded-t hover:bg-gray-100"
+            >
+              Search by Photo
+            </a>
             <%= if @current_user do %>
               <a
                 href={~p"/users/my_pets"}
