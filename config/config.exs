@@ -20,7 +20,8 @@ config :ueberauth, Ueberauth.Strategy.Google.OAuth,
 
 config :rescutex,
   ecto_repos: [Rescutex.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  topic: "pet_search"
 
 # Configures the endpoint
 config :rescutex, RescutexWeb.Endpoint,

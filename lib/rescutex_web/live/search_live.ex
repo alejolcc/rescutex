@@ -3,17 +3,20 @@ defmodule RescutexWeb.SearchLive do
 
   alias Rescutex.Pets
   alias Rescutex.Pets.PetSearch
-  alias Rescutex.AI
 
   import RescutexWeb.CustomComponents
 
   @impl true
   def mount(_params, _session, socket) do
+    topic = Application.fetch_env!(:rescutex, :topic)
+    if connected?(socket), do: Pets.subscribe(topic)
+
     socket =
       socket
       |> assign(:api_key, Application.get_env(:rescutex, :google_api_key))
       |> assign(:similar_pets, [])
       |> assign(:searching, false)
+      |> assign(:searched, false)
       |> assign(:location, nil)
       |> allow_upload(:photo,
         accept: ~w(.jpg .jpeg .png),
@@ -23,6 +26,23 @@ defmodule RescutexWeb.SearchLive do
       |> assign_form(Pets.PetSearch.changeset(%PetSearch{}, %{}))
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_info({:search_results, results}, socket) do
+    {:noreply,
+     socket
+     |> assign(:similar_pets, results)
+     |> assign(:searching, false)
+     |> assign(:searched, true)}
+  end
+
+  @impl true
+  def handle_info({:search_error, reason}, socket) do
+    {:noreply,
+     socket
+     |> assign(:searching, false)
+     |> put_flash(:error, "Failed to process image: #{reason}")}
   end
 
   @impl true
@@ -125,7 +145,7 @@ defmodule RescutexWeb.SearchLive do
 
         <div>
           <h2 class="text-lg font-semibold text-zinc-800 mb-4">Results</h2>
-          <div :if={Enum.empty?(@similar_pets) and not @searching} class="text-zinc-500 italic">
+          <div :if={not @searched and not @searching} class="text-zinc-500 italic">
             Upload a photo and select a location to see results.
           </div>
 
@@ -161,10 +181,7 @@ defmodule RescutexWeb.SearchLive do
               </.link>
             </div>
           </div>
-          <div
-            :if={not Enum.empty?(@similar_pets) and not @searching and length(@similar_pets) == 0}
-            class="text-zinc-500"
-          >
+          <div :if={@searched and Enum.empty?(@similar_pets) and not @searching} class="text-zinc-500">
             No similar pets found within the selected criteria.
           </div>
         </div>
@@ -218,16 +235,27 @@ defmodule RescutexWeb.SearchLive do
     socket = assign(socket, :searching, true)
 
     # Consume uploaded file
-    image_data =
+    image_binary =
       consume_uploaded_entries(socket, :photo, fn %{path: path}, _entry ->
         {:ok, File.read!(path)}
       end)
       |> List.first()
 
+    # Extract coordinates to pass as plain numbers in JSON
+    # Safely handle nil location to avoid crashes before validation
+    location_params =
+      if socket.assigns.location do
+        {long, lat} = socket.assigns.location.coordinates
+        %{"lat" => lat, "long" => long}
+      else
+        nil
+      end
+
     search_params =
       params
-      |> Map.put("location", socket.assigns.location)
-      |> Map.put("image_data", image_data)
+      |> Map.put("location", location_params)
+      # Base64 encode binary to make it JSON-safe for Oban, if it exists
+      |> Map.put("image_data", if(image_binary, do: Base.encode64(image_binary), else: nil))
 
     changeset =
       %PetSearch{}
@@ -235,24 +263,13 @@ defmodule RescutexWeb.SearchLive do
       |> Map.put(:action, :search)
 
     case Ecto.Changeset.apply_action(changeset, :search) do
-      {:ok, search_struct} ->
-        # AI processing (async in a task to avoid blocking the LV process if it's heavy,
-        # but here we'll do it synchronously for simplicity unless it's too slow)
-        case AI.calculate_embedding(search_struct) do
-          {:ok, search_with_embedding} ->
-            results = Pets.search_pets(search_with_embedding)
+      {:ok, _search_struct} ->
+        # Enqueue search job with JSON-safe params
+        %{"search_params" => search_params}
+        |> Rescutex.Jobs.SearchJob.new()
+        |> Oban.insert()
 
-            {:noreply,
-             socket
-             |> assign(:similar_pets, results)
-             |> assign(:searching, false)}
-
-          {:error, reason} ->
-            {:noreply,
-             socket
-             |> assign(:searching, false)
-             |> put_flash(:error, "Failed to process image: #{inspect(reason)}")}
-        end
+        {:noreply, socket}
 
       {:error, changeset} ->
         {:noreply,

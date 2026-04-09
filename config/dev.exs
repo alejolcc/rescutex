@@ -17,7 +17,7 @@ config :rescutex, Rescutex.CloudStorage,
 
 config :rescutex, :ai,
   processor_adapter: Rescutex.AI.Processor.Noop,
-  embedder_adapter: Rescutex.AI.Embedder.Noop
+  embedder_adapter: Rescutex.AI.Embedder.Google
 
 google_Storage_credentials =
   "RESCUTEX_CREDS"

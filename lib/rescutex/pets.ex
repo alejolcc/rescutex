@@ -18,6 +18,7 @@ defmodule Rescutex.Pets do
   Performs a similarity search using a PetSearch schema.
   Always filters by kind and location.
   """
+  @spec search_pets(PetSearch.t()) :: [Pet.t()]
   def search_pets(%PetSearch{} = search) do
     limit = 10
     threshold = 0.8
@@ -364,5 +365,13 @@ defmodule Rescutex.Pets do
       |> Ecto.Multi.update(:pet, Pet.changeset(pet, %{status: :resolved}))
       |> Repo.transaction()
     end
+  end
+
+  def subscribe(topic) do
+    Phoenix.PubSub.subscribe(Rescutex.PubSub, topic)
+  end
+
+  def broadcast(topic, message) do
+    Phoenix.PubSub.broadcast(Rescutex.PubSub, topic, message)
   end
 end
