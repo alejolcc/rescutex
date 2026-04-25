@@ -67,6 +67,12 @@ if config_env() == :prod do
 
   config :rescutex, RescutexWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
+    check_origin: [
+      "https://#{host}",
+      "//rescute.pet",
+      "//www.rescute.pet",
+      "//rescutex.fly.dev"
+    ],
     http: [
       # Enable IPv6 and bind on all interfaces.
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
