@@ -12,8 +12,8 @@
 #   - Ex: hexpm/elixir:1.18.1-erlang-26.1.2-debian-bullseye-20250113-slim
 #
 ARG ELIXIR_VERSION=1.19.4
-ARG OTP_VERSION=28.4.1
-ARG DEBIAN_VERSION=bullseye-20250113-slim
+ARG OTP_VERSION=28.1.1
+ARG DEBIAN_VERSION=bullseye-20260202-slim
 
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
@@ -82,8 +82,8 @@ ENV LC_ALL en_US.UTF-8
 WORKDIR "/app"
 
 # Copy the docker entrypoint which is not part of the app release into the production container.
-COPY entrypoint.sh /app
-RUN chmod +x ./entrypoint.sh
+# COPY entrypoint.sh /app
+# RUN chmod +x ./entrypoint.sh
 
 RUN chown nobody /app
 

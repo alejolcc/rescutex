@@ -23,19 +23,28 @@ end
 config :rescutex, current_env: config_env()
 
 config :rescutex,
-  google_api_key: System.get_env("MAPS_API_KEY")
+  google_api_key: System.get_env("MAPS_API_KEY"),
+  google_project_id: System.get_env("GOOGLE_PROJECT_ID") || "rescutex",
+  google_location: System.get_env("GOOGLE_LOCATION") || "us-central1"
 
 if config_env() == :prod do
-  maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
+  database_url =
+    System.get_env("DATABASE_URL") ||
+      raise """
+      environment variable DATABASE_URL is missing.
+      For example: postgres://USER:PASS@HOST/DATABASE
+      """
+
+  maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1) or not is_nil(System.get_env("FLY_APP_NAME")), do: [:inet6], else: []
 
   config :rescutex, Rescutex.Repo,
     # ssl: true,
     username: System.get_env("DB_USER"),
-    password: System.get_env("DB_PASSWORD"),
+    password: System.get_env("POSTGRES_PASSWORD"),
     database: System.get_env("DB_NAME"),
     hostname: System.get_env("DB_HOST"),
     port: String.to_integer(System.get_env("DB_PORT") || "5432"),
-    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "15"),
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
     socket_options: maybe_ipv6,
     types: Rescutex.PostgrexTypes
 
@@ -68,12 +77,9 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
-  google_Storage_credentials =
-    "RESCUTEX_CREDS"
-    |> System.get_env("")
-    |> :base64.decode()
-
-  config :goth, json: google_Storage_credentials
+  if creds = System.get_env("RESCUTEX_CREDS") do
+    config :goth, json: Base.decode64!(creds)
+  end
 
   # Configure the Google provider with your credentials
   config :ueberauth, Ueberauth.Strategy.Google.OAuth,
@@ -94,6 +100,10 @@ if config_env() == :prod do
   config :rescutex, Rescutex.CloudStorage,
     storage_adapter: Rescutex.CloudStorage.Adapters.S3,
     bucket: "rescutex-images"
+
+  config :rescutex, :oban_dashboard_auth,
+    username: System.fetch_env!("OBAN_USER"),
+    password: System.fetch_env!("OBAN_PASS")
 
   # ## SSL Support
   #
@@ -130,18 +140,32 @@ if config_env() == :prod do
   # ## Configuring the mailer
   #
   # In production you need to configure the mailer to use a different adapter.
-  # Also, you may need to configure the Swoosh API client of your choice if you
-  # are not using SMTP. Here is an example of the configuration:
+  # We default to the Test adapter here to avoid crashes if no mailer is configured.
+  # Once you have a mail service, you can update this to use a real adapter.
+  config :rescutex, Rescutex.Mailer, adapter: Swoosh.Adapters.Test
+
+  # For example, to use Mailgun:
   #
   #     config :rescutex, Rescutex.Mailer,
   #       adapter: Swoosh.Adapters.Mailgun,
   #       api_key: System.get_env("MAILGUN_API_KEY"),
   #       domain: System.get_env("MAILGUN_DOMAIN")
   #
-  # For this example you need include a HTTP client required by Swoosh API client.
+  # Or to use SMTP:
+  #
+  #     config :rescutex, Rescutex.Mailer,
+  #       adapter: Swoosh.Adapters.SMTP,
+  #       relay: System.get_env("SMTP_RELAY"),
+  #       username: System.get_env("SMTP_USERNAME"),
+  #       password: System.get_env("SMTP_PASSWORD"),
+  #       port: 587,
+  #       ssl: true,
+  #       auth: :always
+  #
+  # For these examples you need include a HTTP client required by Swoosh API client.
   # Swoosh supports Hackney and Finch out of the box:
   #
-  #     config :swoosh, :api_client, Swoosh.ApiClient.Hackney
+  #     config :swoosh, :api_client, Swoosh.ApiClient.Finch
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
 end

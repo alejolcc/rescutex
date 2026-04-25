@@ -1,5 +1,5 @@
-# Custom build for postgres with postgis & pgvector enabledCustom build for postgres with postgis & pgvector enabled
-# Ita can be improved removing some stuff maybe but for now is just fine
+# Custom build for postgres with postgis & pgvector enabled
+# It can be improved removing some stuff maybe but for now is just fine
 
 FROM postgis/postgis:17-master
 
@@ -14,6 +14,6 @@ RUN apt-get update && apt-get install -y \
 # Clone and build pgvector
 RUN git clone https://github.com/pgvector/pgvector.git /tmp/pgvector && \
   cd /tmp/pgvector && \
-  make && \
+  make OPTFLAGS="" && \
   make install && \
   rm -rf /tmp/pgvector

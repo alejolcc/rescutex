@@ -66,7 +66,7 @@ defmodule RescutexWeb.PetLive.Index do
       </div>
     </div>
 
-    <.modal :if={@live_action in [:new, :edit]} id="pet-modal" show on_cancel={JS.patch(~p"/pets")}>
+    <.modal :if={@live_action in [:new, :edit]} id="pet-modal" show on_cancel={JS.navigate(~p"/pets")}>
       <.live_component
         module={RescutexWeb.PetLive.FormComponent}
         user={@current_user}
@@ -101,12 +101,6 @@ defmodule RescutexWeb.PetLive.Index do
     socket
     |> assign(:page_title, "Listing Pets")
     |> assign(:pet, nil)
-  end
-
-  @impl true
-  def handle_info({RescutexWeb.PetLive.FormComponent, {:saved, pet}}, socket) do
-    Oban.insert(Oban, EmbeddingJob.new(%{pet_id: pet.id}))
-    {:noreply, stream_insert(socket, :pets, pet)}
   end
 
   @impl true

@@ -121,7 +121,7 @@ defmodule RescutexWeb.PetLive.FormComponent do
   #       {:noreply,
   #        socket
   #        |> put_flash(:info, "Pet updated successfully")
-  #        |> push_patch(to: socket.assigns.patch)}
+  #        |> push_navigate(to: socket.assigns.patch)}
 
   #     {:error, %Ecto.Changeset{} = changeset} ->
   #       {:noreply, assign_form(socket, changeset)}
@@ -133,12 +133,12 @@ defmodule RescutexWeb.PetLive.FormComponent do
 
     case Pets.create_pet(user, pet_params) do
       {:ok, pet} ->
-        notify_parent({:saved, pet})
+        Oban.insert(Oban, Rescutex.Jobs.EmbeddingJob.new(%{pet_id: pet.id}))
 
         {:noreply,
          socket
          |> put_flash(:info, "Pet created successfully")
-         |> push_patch(to: socket.assigns.patch)}
+         |> push_navigate(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}

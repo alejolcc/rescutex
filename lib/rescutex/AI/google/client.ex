@@ -6,18 +6,21 @@ defmodule Rescutex.AI.Google.Client do
   require Logger
   alias Rescutex.AI.Error
 
-  # Configuration (Defaults provided, can be overridden via config/*.exs)
-  @project_id Application.compile_env(:rescutex, :google_project_id, "rescutex")
-  @location Application.compile_env(:rescutex, :google_location, "us-central1")
   @goth_instance Rescutex.Goth
 
   # API Config
-  @base_url "https://#{@location}-aiplatform.googleapis.com/v1/projects/#{@project_id}/locations/#{@location}"
   @edit_model "imagen-3.0-capability-001"
   @embed_model "multimodalembedding@001"
 
   # Timeout configuration
   @timeout 100_000
+
+  defp project_id, do: Application.get_env(:rescutex, :google_project_id, "rescutex")
+  defp location, do: Application.get_env(:rescutex, :google_location, "us-central1")
+
+  defp base_url do
+    "https://#{location()}-aiplatform.googleapis.com/v1/projects/#{project_id()}/locations/#{location()}"
+  end
 
   @type error_response :: {:error, Error.t()}
   @type success_response :: {:ok, map()} | {:ok, list(float())} | {:ok, binary()}
@@ -29,7 +32,7 @@ defmodule Rescutex.AI.Google.Client do
     token = fetch_token!()
 
     middleware = [
-      {Tesla.Middleware.BaseUrl, @base_url},
+      {Tesla.Middleware.BaseUrl, base_url()},
       {Tesla.Middleware.Headers, [{"Authorization", "Bearer #{token}"}]},
       Tesla.Middleware.JSON,
       {Tesla.Middleware.Timeout, timeout: @timeout}

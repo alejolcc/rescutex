@@ -102,7 +102,8 @@ defmodule Rescutex.AI do
   # Keeps the debug file writing logic, but prevents it from blocking the main flow
   defp save_debug_image(pet, binary) do
     # Naming convention: original_name_no_bg.jpg
-    filename = "#{Path.basename(pet.pictures, Path.extname(pet.pictures))}_no_bg.jpg"
+    [first_picture | _] = pet.pictures
+    filename = "#{Path.basename(first_picture, Path.extname(first_picture))}_no_bg.jpg"
     path = Path.join("/tmp", filename)
 
     case File.write(path, binary) do
@@ -113,6 +114,7 @@ defmodule Rescutex.AI do
 
   defp local_file_path(pet) do
     # Assuming the logic from your previous code: the source images are in /tmp
-    Path.join(["/tmp", Path.basename(pet.pictures)])
+    [first_picture | _] = pet.pictures
+    Path.join(["/tmp", Path.basename(first_picture)])
   end
 end

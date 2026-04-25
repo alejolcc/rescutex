@@ -1,30 +1,29 @@
-# fly.toml app configuration file generated for my-phoenix-db on 2025-07-31T11:29:19-03:00
+# fly.toml app configuration file generated for rescutex-db on 2026-04-21T12:31:35-03:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'my-phoenix-db'
-primary_region = 'eze'
+app = 'rescutex-db'
+primary_region = 'gru'
 kill_signal = 'SIGTERM'
 
 [build]
   dockerfile = 'Dockerfile'
 
-# The [processes] section explicitly defines the command to run.
-# This replaces the default command from the Docker image.
+[env]
+  PGDATA = '/data/postgres'
+  POSTGRES_DB = 'rescute_db_prod'
+  POSTGRES_USER = 'rescute'
+
 [processes]
   app = "sh -c 'mkdir -p /data/postgres && chown postgres:postgres /data/postgres && exec docker-entrypoint.sh postgres'"
 
-[env]
-  POSTGRES_DB = "rescute_db_prod"
-  POSTGRES_USER = "rescute"
-  PGDATA = "/data/postgres"
-
-[mounts]
-  source = "pg_data"
-  destination = "/data"
+[[mounts]]
+  source = 'pg_data'
+  destination = '/data'
 
 [[vm]]
-  memory = '1gb'
+  memory = '2gb'
   cpu_kind = 'shared'
   cpus = 1
+  memory_mb = 2048

@@ -89,7 +89,19 @@ defmodule RescutexWeb.Router do
 
       live_dashboard "/dashboard", metrics: RescutexWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
-      oban_dashboard("/oban")
     end
+  end
+
+  scope "/" do
+    pipe_through [:browser, :admins_only]
+    oban_dashboard "/oban"
+  end
+
+  defp admins_only(conn, _opts) do
+    auth_config = Application.fetch_env!(:rescutex, :oban_dashboard_auth)
+    username = auth_config[:username]
+    password = auth_config[:password]
+
+    Plug.BasicAuth.basic_auth(conn, username: username, password: password)
   end
 end
