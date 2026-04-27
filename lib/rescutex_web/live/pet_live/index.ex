@@ -50,15 +50,14 @@ defmodule RescutexWeb.PetLive.Index do
           </div>
           <div id="pets" phx-update="stream" class="contents">
             <div :for={{dom_id, pet} <- @streams.pets} id={dom_id}>
-              <.link navigate={~p"/pets/#{pet.id}"}>
-                <.pet_card
-                  src={pet.pictures}
-                  name={pet.name}
-                  text={pet.details}
-                  id={pet.id}
-                  gender={pet.gender}
-                />
-              </.link>
+              <.pet_card
+                src={pet.pictures}
+                name={pet.name}
+                text={pet.details}
+                id={pet.id}
+                gender={pet.gender}
+                is_owner={@current_user && @current_user.id == pet.user_id}
+              />
             </div>
           </div>
         </div>

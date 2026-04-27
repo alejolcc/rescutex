@@ -170,15 +170,13 @@ defmodule RescutexWeb.SearchLive do
 
           <div id="results" class="grid grid-cols-1 gap-4">
             <div :for={pet <- @similar_pets} id={"pet-#{pet.id}"}>
-              <.link navigate={~p"/pets/#{pet.id}"}>
-                <.pet_card
-                  src={pet.pictures}
-                  name={pet.name}
-                  text={pet.details}
-                  id={pet.id}
-                  gender={pet.gender}
-                />
-              </.link>
+              <.pet_card
+                src={pet.pictures}
+                name={pet.name}
+                text={pet.details}
+                id={pet.id}
+                gender={pet.gender}
+              />
             </div>
           </div>
           <div :if={@searched and Enum.empty?(@similar_pets) and not @searching} class="text-zinc-500">

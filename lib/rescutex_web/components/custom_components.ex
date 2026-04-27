@@ -4,6 +4,7 @@ defmodule RescutexWeb.CustomComponents do
   """
   use Phoenix.Component
   alias Phoenix.LiveView.JS
+  use RescutexWeb, :verified_routes
 
   attr :id, :string, required: true
   attr :selected, :integer, default: 0
@@ -42,6 +43,13 @@ defmodule RescutexWeb.CustomComponents do
     |> JS.push("tab_clicked", value: %{id: id, index: tab_index})
   end
 
+  attr :id, :string, required: true
+  attr :name, :string, required: true
+  attr :src, :list, required: true
+  attr :text, :string, required: true
+  attr :gender, :atom, required: true
+  attr :is_owner, :boolean, default: false
+
   def pet_card(assigns) do
     image_url = assigns.src |> build_image_url()
 
@@ -58,16 +66,25 @@ defmodule RescutexWeb.CustomComponents do
         <h3 class="font-medium text-lg my-2 uppercase flex flex-row flex-nowrap items-center">
           {@name} &nbsp; {pet_gender(@gender)}
         </h3>
-        <p class="text-justify">
+        <p class="text-justify line-clamp-3">
           {@text}
         </p>
-        <div class="mt-5">
-          <a
-            href={"/pets/#{@id}"}
+        <div class="mt-5 flex justify-between items-center">
+          <.link
+            navigate={~p"/pets/#{@id}"}
             class="hover:bg-gray-700 rounded-full py-2 px-3 font-semibold hover:text-white bg-gray-400 text-gray-100"
           >
             More Info
-          </a>
+          </.link>
+
+          <.link
+            :if={@is_owner}
+            phx-click={JS.push("delete", value: %{id: @id}) |> JS.hide(to: "##{@id}")}
+            data-confirm="Are you sure?"
+            class="hover:bg-red-700 rounded-full py-2 px-3 font-semibold hover:text-white bg-red-400 text-white"
+          >
+            Delete
+          </.link>
         </div>
       </div>
     </div>

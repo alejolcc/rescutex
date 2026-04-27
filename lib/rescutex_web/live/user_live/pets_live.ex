@@ -22,16 +22,28 @@ defmodule RescutexWeb.UserLive.PetsLive do
     </.header>
 
     <div class="grid grid-cols-1 gap-4 p-4 justify-items-center">
-      <.link :for={pet <- @pets} navigate={~p"/pets/#{pet.id}"}>
+      <div :for={pet <- @pets} id={"pet-#{pet.id}"}>
         <.pet_card
           src={pet.pictures}
           name={pet.name}
           text={pet.details}
           id={pet.id}
           gender={pet.gender}
+          is_owner={true}
         />
-      </.link>
+      </div>
     </div>
     """
+  end
+
+  @impl true
+  def handle_event("delete", %{"id" => id}, socket) do
+    pet = Pets.get_pet!(id)
+    {:ok, _} = Pets.delete_pet(pet)
+
+    {:noreply,
+     socket
+     |> put_flash(:info, "Pet deleted successfully")
+     |> assign(:pets, Enum.filter(socket.assigns.pets, &(&1.id != pet.id)))}
   end
 end
