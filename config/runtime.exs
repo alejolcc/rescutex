@@ -28,7 +28,7 @@ config :rescutex,
   google_location: System.get_env("GOOGLE_LOCATION") || "us-central1"
 
 if config_env() == :prod do
-  database_url =
+  _database_url =
     System.get_env("DATABASE_URL") ||
       raise """
       environment variable DATABASE_URL is missing.

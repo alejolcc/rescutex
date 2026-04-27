@@ -3,7 +3,6 @@ defmodule RescutexWeb.PetLive.Index do
 
   alias Rescutex.Pets
   alias Rescutex.Pets.Pet
-  alias Rescutex.Jobs.EmbeddingJob
 
   import RescutexWeb.CustomComponents
 

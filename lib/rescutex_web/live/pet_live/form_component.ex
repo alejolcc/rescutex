@@ -160,8 +160,6 @@ defmodule RescutexWeb.PetLive.FormComponent do
     |> assign(:map_error, map_error(changeset))
   end
 
-  defp notify_parent(msg), do: send(self(), {__MODULE__, msg})
-
   defp map_error(%Ecto.Changeset{errors: errors}) do
     if Keyword.has_key?(errors, :location) do
       ["Select the location"]
