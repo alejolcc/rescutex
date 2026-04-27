@@ -17,8 +17,7 @@ defmodule Rescutex.PetsTest do
       "details" => nil,
       "age" => nil,
       "location" => nil,
-      "pictures" => nil,
-      "race" => nil
+      "pictures" => nil
     }
 
     test "list_pets/0 returns all pets", %{user: user} do
@@ -40,7 +39,6 @@ defmodule Rescutex.PetsTest do
         "kind" => :dog,
         "age" => 42,
         "pictures" => ["some pictures"],
-        "race" => "some race",
         "post_type" => "found"
       }
 
@@ -50,7 +48,6 @@ defmodule Rescutex.PetsTest do
       assert pet.details == "some details"
       assert pet.age == 42
       assert pet.pictures == ["some pictures"]
-      assert pet.race == "some race"
     end
 
     test "create_pet/1 with invalid data returns error changeset", %{user: user} do
@@ -65,8 +62,7 @@ defmodule Rescutex.PetsTest do
         "location" => %{"lat" => 15.0, "long" => 25.0},
         "details" => "some updated details",
         "age" => 43,
-        "pictures" => ["some updated pictures"],
-        "race" => "some updated race"
+        "pictures" => ["some updated pictures"]
       }
 
       assert {:ok, %Pet{} = pet} = Pets.update_pet(pet, update_attrs)
@@ -75,7 +71,6 @@ defmodule Rescutex.PetsTest do
       assert pet.details == "some updated details"
       assert pet.age == 43
       assert pet.pictures == ["some updated pictures"]
-      assert pet.race == "some updated race"
     end
 
     test "update_pet/2 with invalid data returns error changeset", %{user: user} do

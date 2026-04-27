@@ -86,10 +86,6 @@ defmodule RescutexWeb.PetLive.Show do
                       <div class="px-4 py-2 font-semibold">Age</div>
                       <div class="px-4 py-2">{@pet.age}</div>
                     </div>
-                    <div class="grid grid-cols-2">
-                      <div class="px-4 py-2 font-semibold">Race</div>
-                      <div class="px-4 py-2">{@pet.race}</div>
-                    </div>
                     <div class="grid grid-cols-1">
                       <div class="px-4 py-2 font-semibold flex items-center">
                         Contact

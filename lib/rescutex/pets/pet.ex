@@ -13,7 +13,6 @@ defmodule Rescutex.Pets.Pet do
     field :kind, Ecto.Enum, values: [:cat, :dog]
     field :age, :integer
     field :pictures, {:array, :string}
-    field :race, :string
     field :embedding, Pgvector.Ecto.Vector
     field :post_type, Ecto.Enum, values: [:found, :lost, :transit, :adoption]
     field :status, Ecto.Enum, values: [:open, :resolved], default: :open
@@ -32,7 +31,6 @@ defmodule Rescutex.Pets.Pet do
       :details,
       :name,
       :pictures,
-      :race,
       :embedding,
       :kind,
       :gender,

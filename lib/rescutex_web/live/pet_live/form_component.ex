@@ -29,7 +29,6 @@ defmodule RescutexWeb.PetLive.FormComponent do
 
         <.input field={@form[:name]} type="text" label="Name" />
         <.input field={@form[:age]} type="number" label="Age" />
-        <.input field={@form[:race]} type="text" label="Race" />
         <.input field={@form[:gender]} type="text" label="Gender" />
         <.input field={@form[:details]} type="textarea" label="Details" />
         <.input field={@form[:kind]} type="select" label="Kind" options={@kind_select} />

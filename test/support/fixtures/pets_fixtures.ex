@@ -16,7 +16,6 @@ defmodule Rescutex.PetsFixtures do
         "location" => %{"lat" => 120.5, "long" => 120.5},
         "name" => "some name",
         "pictures" => ["some pictures"],
-        "race" => "some race",
         "kind" => :dog,
         "post_type" => :found
       })
