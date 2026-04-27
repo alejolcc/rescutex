@@ -126,14 +126,6 @@ defmodule RescutexWeb.CustomComponents do
     """
   end
 
-  def pet_tag(assigns) do
-    ~H"""
-    <div class="ml-4 text-xs text-center items-center font-bold leading-sm uppercase px-3 py-1 rounded-full bg-white text-gray-700 border">
-      {@tag}
-    </div>
-    """
-  end
-
   def rounded_img_with_name(assigns) do
     image_url = assigns.src |> build_image_url()
 

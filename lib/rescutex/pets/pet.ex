@@ -2,8 +2,6 @@ defmodule Rescutex.Pets.Pet do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Rescutex.Pets.PetTag
-  alias Rescutex.Pets.Tag
   alias Geo.Point
 
   @derive {Jason.Encoder, except: [:__struct__, :__meta__]}
@@ -22,9 +20,6 @@ defmodule Rescutex.Pets.Pet do
 
     belongs_to :user, Rescutex.Accounts.User
     has_one :resolution, Rescutex.Pets.Resolution
-
-    # REVIEW: Not sure if this will be used
-    many_to_many :tags, Tag, join_through: PetTag
 
     timestamps(type: :utc_datetime)
   end
