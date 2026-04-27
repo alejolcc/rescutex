@@ -94,7 +94,7 @@ defmodule RescutexWeb.Router do
 
   scope "/" do
     pipe_through [:browser, :admins_only]
-    oban_dashboard "/oban"
+    oban_dashboard("/oban")
   end
 
   defp admins_only(conn, _opts) do

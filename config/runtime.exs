@@ -35,7 +35,10 @@ if config_env() == :prod do
       For example: postgres://USER:PASS@HOST/DATABASE
       """
 
-  maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1) or not is_nil(System.get_env("FLY_APP_NAME")), do: [:inet6], else: []
+  maybe_ipv6 =
+    if System.get_env("ECTO_IPV6") in ~w(true 1) or not is_nil(System.get_env("FLY_APP_NAME")),
+      do: [:inet6],
+      else: []
 
   config :rescutex, Rescutex.Repo,
     # ssl: true,
