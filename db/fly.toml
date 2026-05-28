@@ -23,7 +23,7 @@ kill_signal = 'SIGTERM'
   destination = '/data'
 
 [[vm]]
-  memory = '2gb'
+  memory = '512mb'
   cpu_kind = 'shared'
   cpus = 1
-  memory_mb = 2048
+  memory_mb = 512
